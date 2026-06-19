@@ -15,7 +15,9 @@
     "build:firefox": "node build.mjs --target firefox",
     "build:all": "npm run build:chrome && npm run build:firefox",
     "demo": "python3 -m http.server 8080",
-    "build:test-engine": "npx esbuild src/engine.ts --bundle --platform=node --format=esm --outfile=test/.build/engine.mjs && npx esbuild src/wallet-connector.ts --bundle --platform=node --format=esm --outfile=test/.build/wallet-connector.mjs && npx esbuild src/feature-flags.ts --bundle --platform=node --format=esm --outfile=test/.build/feature-flags.mjs"
+    "build:test-engine": "npx esbuild src/engine.ts --bundle --platform=node --format=esm --outfile=test/.build/engine.mjs && npx esbuild src/wallet-connector.ts --bundle --platform=node --format=esm --outfile=test/.build/wallet-connector.mjs && npx esbuild src/feature-flags.ts --bundle --platform=node --format=esm --outfile=test/.build/feature-flags.mjs",
+    "demo:backend": "npm --prefix examples/backend-demo start",
+    "test:backend-demo": "npm --prefix examples/backend-demo test"
   },
   "dependencies": {
     "snarkjs": "^0.7.4"

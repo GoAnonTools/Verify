@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GoAnon Verify backend demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.5;
+    }
+
+    .card {
+      border: 1px solid color-mix(in srgb, CanvasText 18%, transparent);
+      border-radius: 18px;
+      padding: 22px;
+      margin: 18px 0;
+      background: color-mix(in srgb, Canvas 94%, CanvasText 6%);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      border-radius: 14px;
+      padding: 16px;
+      background: color-mix(in srgb, CanvasText 10%, transparent);
+    }
+
+    .muted {
+      opacity: 0.72;
+    }
+
+    .ok {
+      color: #20a65a;
+      font-weight: 700;
+    }
+
+    .warn {
+      color: #c87500;
+      font-weight: 700;
+    }
+
+    .bad {
+      color: #d33;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <h1>GoAnon Verify backend demo</h1>
+
+  <p class="muted">
+    This is a relying-party demo. The backend generates a single-use challenge,
+    the browser asks the GoAnon Verify extension for an age proof, and the backend
+    rejects reused challenges.
+  </p>
+
+  <div class="card">
+    <h2>Flow</h2>
+    <ol>
+      <li>Get a single-use challenge from this backend.</li>
+      <li>Ask the GoAnon Verify extension for an age proof.</li>
+      <li>Send the proof back to this backend.</li>
+      <li>Backend verifies challenge, audience, threshold, expiry, and replay state.</li>
+    </ol>
+
+    <button id="verifyBtn">Request proof and verify</button>
+    <p id="status" class="muted">Ready.</p>
+  </div>
+
+  <div class="card">
+    <h2>Last challenge</h2>
+    <pre id="challengeOut">No challenge yet.</pre>
+  </div>
+
+  <div class="card">
+    <h2>Backend response</h2>
+    <pre id="responseOut">No response yet.</pre>
+  </div>
+
+  <div class="card">
+    <h2>Replay test</h2>
+    <p class="muted">
+      After a successful verification, click this to resend the same proof and challenge.
+      The backend should reject it with <code>challenge_already_used</code>.
+    </p>
+    <button id="replayBtn" disabled>Replay last proof</button>
+    <pre id="replayOut">No replay attempted yet.</pre>
+  </div>
+
+  <script src="/goanon-verify.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
