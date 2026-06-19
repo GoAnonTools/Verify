@@ -108,7 +108,10 @@ async function verifyAgeProofWithExistingSdk(proof, options) {
     const result = await verifier.verifyGoAnonAgeProof(proof, null, options);
 
     if (result?.ok === false) {
-      throw new Error(result.error || "GoAnon Verify proof verification failed.");
+      const error = new Error(result.error || "GoAnon Verify proof verification failed.");
+      error.code = result.code || "invalid_proof";
+      error.details = result.details;
+      throw error;
     }
 
     return result;
@@ -126,13 +129,18 @@ async function verifyAgeProofWithExistingSdk(proof, options) {
   const result = await verifyAgeProof(proof, options);
 
   if (result?.ok === false || result?.valid === false || result === false) {
-    throw new Error(result.error || result.reason || "GoAnon Verify proof verification failed.");
+    const error = new Error(result.error || result.reason || "GoAnon Verify proof verification failed.");
+    error.code = result.code || "invalid_proof";
+    error.details = result.details;
+    throw error;
   }
 
   return result;
 }
 
 function verifierErrorCode(error) {
+  if (error?.code) return error.code;
+
   const message = String(error?.message || error || "");
 
   if (/demo/i.test(message)) return "demo_proof_rejected";

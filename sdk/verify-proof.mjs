@@ -21,12 +21,45 @@
  */
 export const GOANON_VERIFY_PROTOCOL = 'goanon.verify.v1';
 
+export const GOANON_VERIFY_ERROR_CODES = Object.freeze({
+  MISSING_PROOF: 'missing_proof',
+  UNSUPPORTED_PROOF_TYPE: 'unsupported_proof_type',
+  PROTOCOL_MISMATCH: 'protocol_mismatch',
+  MISSING_CLAIM: 'missing_claim',
+  UNSUPPORTED_CLAIM_TYPE: 'unsupported_claim_type',
+  AGE_CLAIM_NOT_SATISFIED: 'age_claim_not_satisfied',
+  INVALID_THRESHOLD: 'invalid_threshold',
+  THRESHOLD_TOO_LOW: 'threshold_too_low',
+  MISSING_EXPIRATION: 'missing_expiration',
+  PROOF_EXPIRED: 'proof_expired',
+  CHALLENGE_MISMATCH: 'challenge_mismatch',
+  AUDIENCE_MISMATCH: 'audience_mismatch',
+  MISSING_PRIVACY_LABEL: 'missing_privacy_label',
+  MISSING_DISCLOSED_CLAIM: 'missing_disclosed_claim',
+  MISSING_NOT_DISCLOSED: 'missing_not_disclosed',
+  DEMO_PROOF_REJECTED: 'demo_proof_rejected',
+  CRYPTO_VERIFIER_MISSING: 'crypto_verifier_missing',
+  CRYPTO_VERIFICATION_FAILED: 'crypto_verification_failed',
+});
+
+export class GoAnonVerifyProofError extends Error {
+  constructor(code, message, details = {}) {
+    super(message);
+    this.name = 'GoAnonVerifyProofError';
+    this.code = code;
+    this.details = details;
+  }
+}
+
 export async function verifyGoAnonAgeProof(proof, verificationKey, options = {}) {
   const envelope = validateGoAnonEnvelope(proof, options);
 
   if (envelope.mode === 'demo-local-test' || envelope.proof_type === 'local-demo-not-cryptographic') {
     if (!options.allowDemo) {
-      return fail('Demo/local-test proofs are not accepted in production verification.');
+      return fail(
+        GOANON_VERIFY_ERROR_CODES.DEMO_PROOF_REJECTED,
+        'Demo/local-test proofs are not accepted in production verification.'
+      );
     }
 
     return ok({
@@ -40,7 +73,10 @@ export async function verifyGoAnonAgeProof(proof, verificationKey, options = {})
   const verifyAgeProof = options.verifyAgeProof;
 
   if (typeof verifyAgeProof !== 'function') {
-    return fail('Cryptographic verifier is not configured. Pass options.verifyAgeProof for production proofs.');
+    return fail(
+      GOANON_VERIFY_ERROR_CODES.CRYPTO_VERIFIER_MISSING,
+      'Cryptographic verifier is not configured. Pass options.verifyAgeProof for production proofs.'
+    );
   }
 
   const cryptoResult = await verifyAgeProof(envelope, verificationKey, {
@@ -50,7 +86,11 @@ export async function verifyGoAnonAgeProof(proof, verificationKey, options = {})
   });
 
   if (cryptoResult?.ok === false || cryptoResult === false) {
-    return fail('Cryptographic proof verification failed.');
+    return fail(
+      GOANON_VERIFY_ERROR_CODES.CRYPTO_VERIFICATION_FAILED,
+      'Cryptographic proof verification failed.',
+      { engine: cryptoResult }
+    );
   }
 
   return ok({
@@ -63,72 +103,133 @@ export async function verifyGoAnonAgeProof(proof, verificationKey, options = {})
 
 export function validateGoAnonEnvelope(proof, options = {}) {
   if (!proof || typeof proof !== 'object') {
-    throw new Error('Missing proof envelope.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_PROOF,
+      'Missing proof envelope.'
+    );
   }
 
   if (proof.type !== 'goanon.age.proof') {
-    throw new Error('Unsupported proof type.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.UNSUPPORTED_PROOF_TYPE,
+      'Unsupported proof type.',
+      { received: proof.type }
+    );
   }
 
   if (proof.protocol !== GOANON_VERIFY_PROTOCOL && proof.protocol_version !== GOANON_VERIFY_PROTOCOL) {
-    throw new Error('Unsupported GoAnon Verify protocol version.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.PROTOCOL_MISMATCH,
+      'Unsupported GoAnon Verify protocol version.',
+      {
+        expected: GOANON_VERIFY_PROTOCOL,
+        received: proof.protocol ?? proof.protocol_version,
+      }
+    );
   }
 
   const claim = proof.claim;
   if (!claim || typeof claim !== 'object') {
-    throw new Error('Missing claim object.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_CLAIM,
+      'Missing claim object.'
+    );
   }
 
   if (claim.type !== 'age_over_threshold') {
-    throw new Error('Unsupported claim type.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.UNSUPPORTED_CLAIM_TYPE,
+      'Unsupported claim type.',
+      { received: claim.type }
+    );
   }
 
   if (claim.result !== true) {
-    throw new Error('Age claim is not satisfied.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.AGE_CLAIM_NOT_SATISFIED,
+      'Age claim is not satisfied.'
+    );
   }
 
   const threshold = Number(claim.threshold ?? proof.minAge);
   if (!Number.isInteger(threshold) || threshold < 13 || threshold > 125) {
-    throw new Error('Invalid age threshold.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.INVALID_THRESHOLD,
+      'Invalid age threshold.',
+      { received: claim.threshold ?? proof.minAge }
+    );
   }
 
   if (options.minAge != null && threshold < Number(options.minAge)) {
-    throw new Error(`Proof threshold ${threshold} is lower than required minimum ${options.minAge}.`);
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.THRESHOLD_TOO_LOW,
+      `Proof threshold ${threshold} is lower than required minimum ${options.minAge}.`,
+      {
+        proofThreshold: threshold,
+        requiredMinAge: Number(options.minAge),
+      }
+    );
   }
 
   const expiresAt = proof.expires_at ?? proof.presentation?.expires_at;
   if (!Number.isFinite(Number(expiresAt))) {
-    throw new Error('Missing proof expiration.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_EXPIRATION,
+      'Missing proof expiration.'
+    );
   }
 
   if (Date.now() > Number(expiresAt)) {
-    throw new Error('Proof has expired.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.PROOF_EXPIRED,
+      'Proof has expired.',
+      { expiresAt: Number(expiresAt) }
+    );
   }
 
   if (options.expectedChallenge) {
     const challenge = proof.challenge ?? proof.presentation?.challenge;
     if (challenge !== options.expectedChallenge) {
-      throw new Error('Proof challenge does not match.');
+      throwProofError(
+        GOANON_VERIFY_ERROR_CODES.CHALLENGE_MISMATCH,
+        'Proof challenge does not match.'
+      );
     }
   }
 
   if (options.expectedAudience) {
     const audience = proof.relying_party?.origin ?? proof.presentation?.audience;
     if (audience !== options.expectedAudience) {
-      throw new Error('Proof audience does not match.');
+      throwProofError(
+        GOANON_VERIFY_ERROR_CODES.AUDIENCE_MISMATCH,
+        'Proof audience does not match.',
+        {
+          expected: options.expectedAudience,
+          received: audience,
+        }
+      );
     }
   }
 
   if (!proof.privacy || typeof proof.privacy !== 'object') {
-    throw new Error('Missing privacy label.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_PRIVACY_LABEL,
+      'Missing privacy label.'
+    );
   }
 
   if (!Array.isArray(proof.disclosed) || !proof.disclosed.includes('age_over_threshold')) {
-    throw new Error('Proof does not disclose the required age_over_threshold claim.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_DISCLOSED_CLAIM,
+      'Proof does not disclose the required age_over_threshold claim.'
+    );
   }
 
   if (!Array.isArray(proof.not_disclosed)) {
-    throw new Error('Missing not_disclosed privacy list.');
+    throwProofError(
+      GOANON_VERIFY_ERROR_CODES.MISSING_NOT_DISCLOSED,
+      'Missing not_disclosed privacy list.'
+    );
   }
 
   return proof;
@@ -158,6 +259,15 @@ export function explainProof(proof) {
   };
 }
 
+export function fail(code, error, details = {}) {
+  return {
+    ok: false,
+    code,
+    error,
+    details,
+  };
+}
+
 function ok(extra = {}) {
   return {
     ok: true,
@@ -165,9 +275,6 @@ function ok(extra = {}) {
   };
 }
 
-function fail(error) {
-  return {
-    ok: false,
-    error,
-  };
+function throwProofError(code, message, details = {}) {
+  throw new GoAnonVerifyProofError(code, message, details);
 }
