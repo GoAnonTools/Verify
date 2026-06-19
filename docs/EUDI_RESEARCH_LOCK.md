@@ -191,3 +191,19 @@ GoAnon Verify remains:
 * not a bypass tool.
 
 The next implementation step is a disabled wallet connector scaffold, not a live France Identité integration.
+
+## Disabled wallet scaffold
+
+A disabled implementation scaffold exists at:
+
+~~~text
+src/eudi-wallet-scaffold.ts
+~~~
+
+Documentation:
+
+~~~text
+docs/EUDI_WALLET_SCAFFOLD.md
+~~~
+
+This scaffold must remain disabled until the official wallet path, privacy behavior, trust model, and production verifier are reviewed.

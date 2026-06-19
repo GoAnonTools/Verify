@@ -277,3 +277,13 @@ docs/TRUST_ANCHORS.md
 ~~~
 
 Trust anchors are currently an alpha placeholder for the future EUDI, wallet, selective-disclosure, or ZK trust model. Demo/manual issuers are not production trust anchors.
+
+## EUDI wallet scaffold
+
+A disabled EUDI-compatible wallet scaffold is documented in:
+
+~~~text
+docs/EUDI_WALLET_SCAFFOLD.md
+~~~
+
+The scaffold is not a live connector and must remain disabled until the official wallet path, privacy behavior, trust model, and verifier implementation are reviewed.
