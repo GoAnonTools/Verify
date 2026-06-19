@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>goanon</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d14;
+      --bg2:       #13131f;
+      --bg3:       #1a1a2e;
+      --border:    rgba(255,255,255,0.08);
+      --border-hi: rgba(255,255,255,0.15);
+      --text:      #e8e6f0;
+      --text2:     #9993b4;
+      --text3:     #5a5575;
+      --accent:    #7c6fff;
+      --accent-hi: #9d8fff;
+      --accent-bg: rgba(124,111,255,0.12);
+      --green:     #34d399;
+      --green-bg:  rgba(52,211,153,0.10);
+      --red:       #f87171;
+      --red-bg:    rgba(248,113,113,0.10);
+      --amber:     #fbbf24;
+      --amber-bg:  rgba(251,191,36,0.10);
+      --radius:    10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      width: 340px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Layout ── */
+    .view { display: none; flex-direction: column; min-height: 480px; }
+    .view.active { display: flex; }
+
+    /* ── Header ── */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-mark {
+      width: 28px; height: 28px;
+      background: var(--accent-bg);
+      border: 1px solid rgba(124,111,255,0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .logo-name {
+      font-size: 15px; font-weight: 600; letter-spacing: -0.3px;
+      color: var(--text);
+    }
+    .logo-name span { color: var(--accent); }
+
+    .header-actions { display: flex; gap: 6px; }
+    .icon-btn {
+      width: 28px; height: 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--border-hi); color: var(--text); }
+
+    /* ── Status pill ── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 8px 3px 6px;
+      border-radius: 99px;
+      font-size: 11px; font-weight: 500;
+    }
+    .status-pill.active { background: var(--green-bg); color: var(--green); }
+    .status-pill.inactive { background: var(--red-bg); color: var(--red); }
+    .status-pill.pending { background: var(--amber-bg); color: var(--amber); }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .status-pill.active .status-dot { animation: pulse 2s ease-in-out infinite; }
+    .status-pill.inactive .status-dot { animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── Home view ── */
+    .home-body {
+      flex: 1;
+      display: flex; flex-direction: column;
+      padding: 0;
+    }
+
+    .credential-card {
+      margin: 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .credential-label {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text3); margin-bottom: 10px;
+    }
+    .credential-issuer {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .issuer-flag { font-size: 18px; }
+    .issuer-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .issuer-id { font-size: 11px; color: var(--text2); font-family: monospace; }
+    .credential-meta {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-top: 12px;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .meta-value { font-size: 12px; color: var(--text2); }
+    .meta-value.private { font-style: italic; color: var(--text3); }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 32px 24px; text-align: center; gap: 12px;
+    }
+    .empty-icon {
+      width: 56px; height: 56px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 4px;
+    }
+    .empty-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .empty-desc { font-size: 12px; color: var(--text2); line-height: 1.6; max-width: 240px; }
+
+    /* ── Activity feed ── */
+    .section-title {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text3); padding: 0 16px 8px;
+    }
+    .activity-list { padding: 0 16px; display: flex; flex-direction: column; gap: 6px; }
+    .activity-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .activity-icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: var(--green-bg);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .activity-icon.fail { background: var(--red-bg); }
+    .activity-content { flex: 1; min-width: 0; }
+    .activity-site { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-time { font-size: 10px; color: var(--text3); }
+    .activity-badge {
+      font-size: 10px; font-weight: 500;
+      padding: 2px 6px; border-radius: 4px;
+      background: var(--green-bg); color: var(--green);
+    }
+    .activity-badge.fail { background: var(--red-bg); color: var(--red); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 16px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: none; transition: opacity 0.15s, transform 0.1s;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-ghost {
+      background: transparent; color: var(--text2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--border-hi); color: var(--text); }
+    .btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-full { width: 100%; }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px;
+    }
+
+    /* ── Issuer select view ── */
+    .view-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: transparent; color: var(--text2);
+      cursor: pointer; font-size: 16px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .back-btn:hover { border-color: var(--border-hi); color: var(--text); }
+    .view-title { font-size: 14px; font-weight: 600; }
+    .view-subtitle { font-size: 11px; color: var(--text2); }
+
+    .issuer-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .issuer-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .issuer-option:hover { border-color: var(--accent); background: var(--accent-bg); }
+    .issuer-option.issuer-eudi {
+      border-color: rgba(118, 167, 255, 0.45);
+      background: linear-gradient(135deg, rgba(118, 167, 255, 0.14), rgba(118, 167, 255, 0.04));
+    }
+    .issuer-option.issuer-eudi:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+    .issuer-option.issuer-manual {
+      opacity: 0.82;
+      border-style: dashed;
+    }
+    .issuer-option.issuer-manual .issuer-title::after {
+      content: " — dev only";
+      color: var(--text3);
+      font-weight: 400;
+    }
+    .issuer-flag-lg { font-size: 22px; }
+    .issuer-info { flex: 1; }
+    .issuer-title { font-size: 13px; font-weight: 600; }
+    .issuer-country { font-size: 11px; color: var(--text2); }
+    .issuer-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .issuer-badge {
+      font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 4px;
+    }
+    .issuer-badge.open { background: var(--green-bg); color: var(--green); }
+    .issuer-badge.id { background: var(--amber-bg); color: var(--amber); }
+    .issuer-eudi .issuer-badge { background: var(--amber-bg); color: var(--amber); }
+    .issuer-manual .issuer-badge { background: var(--bg3); color: var(--text3); }
+
+    /* ── Onboarding / passphrase view ── */
+    .onboard-body {
+      flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .info-box {
+      padding: 12px 14px;
+      background: var(--accent-bg);
+      border: 1px solid rgba(124,111,255,0.2);
+      border-radius: var(--radius);
+      font-size: 12px; color: var(--text2); line-height: 1.6;
+    }
+    .info-box strong { color: var(--accent); font-weight: 600; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 500; color: var(--text2); letter-spacing: 0.04em; }
+    .form-input {
+      width: 100%; padding: 9px 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 13px; font-family: inherit;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--text3); }
+    .form-hint { font-size: 11px; color: var(--text3); }
+
+    .strength-bar { height: 3px; border-radius: 2px; background: var(--bg3); margin-top: 6px; }
+    .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+
+    /* ── Qr / waiting state ── */
+    .waiting-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 24px; text-align: center; gap: 16px;
+    }
+    .qr-box {
+      width: 160px; height: 160px;
+      background: #fff; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: #000; font-size: 11px; position: relative;
+      overflow: hidden;
+    }
+    #qr-canvas { width: 160px; height: 160px; }
+    .waiting-title { font-size: 14px; font-weight: 600; }
+    .waiting-desc { font-size: 12px; color: var(--text2); max-width: 220px; line-height: 1.6; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Settings view ── */
+    .settings-body { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .settings-section { margin-bottom: 12px; }
+    .settings-section-title {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text3); margin-bottom: 8px;
+    }
+    .settings-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin-bottom: 4px;
+    }
+    .settings-row-label { font-size: 12px; color: var(--text); }
+    .settings-row-hint { font-size: 11px; color: var(--text3); }
+    .toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+      position: relative; cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle.on { background: var(--accent); border-color: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--text2); transition: transform 0.2s, background 0.2s;
+    }
+    .toggle.on::after { transform: translateX(16px); background: #fff; }
+
+    /* ── Manual import ── */
+    .textarea {
+      width: 100%; min-height: 100px;
+      padding: 9px 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 12px; font-family: monospace;
+      resize: vertical; outline: none;
+      transition: border-color 0.15s;
+    }
+    .textarea:focus { border-color: var(--accent); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 12px; left: 12px; right: 12px;
+      padding: 10px 14px; border-radius: var(--radius-sm);
+      font-size: 12px; font-weight: 500;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none; z-index: 100;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+    #toast.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+
+    /* ── Proof generation overlay ── */
+    #proof-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(13,13,20,0.92);
+      z-index: 50; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px;
+    }
+    #proof-overlay.show { display: flex; }
+    .proof-step { font-size: 12px; color: var(--text2); }
+    .proof-step.done { color: var(--green); }
+
+    /* Scrollable content */
+    .scroll { overflow-y: auto; }
+    .scroll::-webkit-scrollbar { width: 4px; }
+    .scroll::-webkit-scrollbar-track { background: transparent; }
+    .scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ────────────────── VIEW: HOME ────────────────── -->
+<div id="view-home" class="view">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">🔐</div>
+      <span class="logo-name">go<span>anon</span></span>
+    </div>
+    <div class="header-actions">
+      <div id="status-pill" class="status-pill inactive">
+        <div class="status-dot"></div>
+        <span id="status-text">No credential</span>
+      </div>
+      <button class="icon-btn" id="btn-settings" title="Settings">⚙</button>
+    </div>
+  </div>
+
+  <div class="home-body scroll">
+
+    <!-- Credential card (shown when active) -->
+    <div id="credential-card" class="credential-card" style="display:none">
+      <div class="credential-label">Active credential</div>
+      <div class="credential-issuer">
+        <span class="issuer-flag" id="cred-flag">🪪</span>
+        <div>
+          <div class="issuer-name" id="cred-name">Age proof</div>
+          <div class="issuer-id" id="cred-id">stored locally</div>
+        </div>
+      </div>
+      <div class="credential-meta">
+        <div class="meta-item">
+          <span class="meta-label">Birthdate</span>
+          <span class="meta-value private" title="Encrypted locally">hidden (encrypted)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Stored</span>
+          <span class="meta-value" id="cred-stored">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Proofs generated</span>
+          <span class="meta-value" id="cred-proofs">0</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Last used</span>
+          <span class="meta-value" id="cred-last">Never</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state (shown when no credential) -->
+    <div class="info-box" style="margin-bottom:12px;">
+      <strong>Private alpha.</strong> EUDI-compatible wallet support is being prepared. Official wallet proof will only be enabled after the Digital Dignity privacy checks pass.
+    </div>
+
+    <div id="empty-state" class="empty-state">
+      <div class="empty-icon">🪪</div>
+      <div class="empty-title">No age proof yet</div>
+      <div class="empty-desc">Add an official wallet age proof when available. Verify can answer cooperating websites that explicitly request a privacy proof — no ID upload, no exact birthdate shared.</div>
+    </div>
+
+    <!-- Activity feed -->
+    <div id="activity-section" style="display:none; padding-bottom: 12px;">
+      <div class="section-title">Recent proofs</div>
+      <div class="activity-list" id="activity-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">
+    <button id="btn-add-credential" class="btn btn-primary btn-full">
+      + Add age proof
+    </button>
+    <button id="btn-remove-credential" class="btn btn-ghost" style="display:none; flex-shrink:0; width: auto; padding: 9px 12px;" title="Remove credential">
+      🗑
+    </button>
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: ISSUER SELECT ────────────────── -->
+<div id="view-issuers" class="view">
+  <div class="view-header">
+    <button class="back-btn" data-back="home">←</button>
+    <div>
+      <div class="view-title">Add age proof</div>
+      <div class="view-subtitle">Official wallet first. Local testing only for development.</div>
+    </div>
+  </div>
+
+  <div class="issuer-list scroll" id="issuer-list">
+    <!-- Populated by JS from ISSUERS registry -->
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: PASSPHRASE SETUP ────────────────── -->
+<div id="view-passphrase" class="view">
+  <div class="view-header">
+    <button class="back-btn" data-back="issuers">←</button>
+    <div>
+      <div class="view-title">Set a local passphrase</div>
+      <div class="view-subtitle">Encrypts your credential on this device</div>
+    </div>
+  </div>
+
+  <div class="onboard-body">
+    <div class="info-box">
+      Your credential is encrypted with <strong>AES-256-GCM</strong> before being stored.
+      This passphrase is <strong>never transmitted</strong> — it's only used to unlock
+      your credential locally when generating a proof.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="input-passphrase">Passphrase</label>
+      <input type="password" id="input-passphrase" class="form-input"
+             placeholder="Choose a strong passphrase" autocomplete="new-password">
+      <div class="strength-bar"><div class="strength-fill" id="strength-fill" style="width:0%"></div></div>
+      <span class="form-hint" id="strength-label">Enter a passphrase</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="input-passphrase2">Confirm passphrase</label>
+      <input type="password" id="input-passphrase2" class="form-input"
+             placeholder="Repeat passphrase" autocomplete="new-password">
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button id="btn-connect-issuer" class="btn btn-primary btn-full" disabled>
+      Connect &amp; encrypt
+    </button>
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: WAITING FOR ISSUER ────────────────── -->
+<div id="view-waiting" class="view">
+  <div class="view-header">
+    <button class="back-btn" data-back="issuers">←</button>
+    <div>
+      <div class="view-title" id="waiting-issuer-name">Preparing wallet…</div>
+      <div class="view-subtitle">Follow the wallet instructions</div>
+    </div>
+  </div>
+
+  <div class="waiting-body">
+    <!-- QR code container for future wallet flows; spinner for local setup -->
+    <div id="qr-container" style="display:none">
+      <div class="qr-box">
+        <canvas id="qr-canvas"></canvas>
+      </div>
+    </div>
+    <div id="spinner-container">
+      <div class="spinner"></div>
+    </div>
+    <div class="waiting-title" id="waiting-title">Opening app…</div>
+    <div class="waiting-desc" id="waiting-desc">
+      Your browser will open the identity provider. Complete verification there,
+      then return here.
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: MANUAL IMPORT ────────────────── -->
+<div id="view-manual" class="view">
+  <div class="view-header">
+    <button class="back-btn" data-back="issuers">←</button>
+    <div>
+      <div class="view-title">Create local test credential</div>
+      <div class="view-subtitle">For development only</div>
+    </div>
+  </div>
+
+  <div class="onboard-body">
+    <div class="info-box">
+      Use this only to test the local flow. Expected format:<br>
+      <code style="font-size:10px; color: var(--accent);">{"birthdate":"1990-06-15","issuer":"my-issuer"}</code>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Credential JSON</label>
+      <textarea class="textarea" id="manual-json-input"
+                placeholder='{"birthdate":"1990-06-15","issuer":"custom"}'></textarea>
+      <span class="form-hint" id="manual-parse-hint">Paste JSON above</span>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button id="btn-manual-import" class="btn btn-primary btn-full" disabled>
+      Create test credential
+    </button>
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: UNLOCK (proof request) ────────────────── -->
+<div id="view-unlock" class="view">
+  <div class="view-header">
+    <div>
+      <div class="view-title">Unlock credential</div>
+      <div class="view-subtitle" id="unlock-site">to generate age proof</div>
+    </div>
+  </div>
+
+  <div class="onboard-body">
+    <div class="info-box" id="unlock-info">
+      A website is requesting age verification. Enter your passphrase to generate
+      a <strong>local zero-knowledge proof</strong>. No ID, name, birthdate, or issuer callback is shared.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="unlock-passphrase">Your passphrase</label>
+      <input type="password" id="unlock-passphrase" class="form-input"
+             placeholder="Enter your passphrase" autocomplete="current-password">
+      <span class="form-hint" id="unlock-error" style="color:var(--red); display:none">Wrong passphrase</span>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button id="btn-unlock-cancel" class="btn btn-ghost" style="flex:1">Cancel</button>
+    <button id="btn-unlock-confirm" class="btn btn-primary" style="flex:2">Generate proof</button>
+  </div>
+</div>
+
+<!-- ────────────────── VIEW: SETTINGS ────────────────── -->
+<div id="view-settings" class="view">
+  <div class="view-header">
+    <button class="back-btn" data-back="home">←</button>
+    <div>
+      <div class="view-title">Settings</div>
+    </div>
+  </div>
+
+  <div class="settings-body scroll">
+
+    <div class="settings-section">
+      <div class="settings-section-title">Privacy</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Allow website proof requests</div>
+          <div class="settings-row-hint">Only for sites that explicitly use the GoAnon protocol</div>
+        </div>
+        <div class="toggle on" id="toggle-intercept" role="switch" aria-checked="true"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Keep local proof log</div>
+          <div class="settings-row-hint">Stores proof history locally on this device only</div>
+        </div>
+        <div class="toggle on" id="toggle-log" role="switch" aria-checked="true"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Proof TTL</div>
+          <div class="settings-row-hint">How long a proof stays valid</div>
+        </div>
+        <select class="form-input" id="proof-ttl" style="width: auto; padding: 4px 8px; font-size: 11px;">
+          <option value="60">1 minute</option>
+          <option value="300" selected>5 minutes</option>
+          <option value="600">10 minutes</option>
+          <option value="3600">1 hour</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Age threshold</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Minimum age</div>
+          <div class="settings-row-hint">Default for all sites</div>
+        </div>
+        <select class="form-input" id="age-threshold" style="width: auto; padding: 4px 8px; font-size: 11px;">
+          <option value="16">16 years</option>
+          <option value="18" selected>18 years</option>
+          <option value="21">21 years</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Credential</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Export proof log</div>
+          <div class="settings-row-hint">Download activity history as JSON</div>
+        </div>
+        <button class="btn btn-ghost" id="btn-export-log" style="padding:4px 10px; font-size:11px">Export</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">About</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">goanon.pro</div>
+          <div class="settings-row-hint">v0.2.0-alpha · Apache-2.0 License</div>
+        </div>
+        <a href="https://goanon.pro" target="_blank" class="btn btn-ghost" style="padding:4px 10px; font-size:11px">Website</a>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Source code</div>
+          <div class="settings-row-hint">github.com/goanon-pro/zk-core</div>
+        </div>
+        <a href="https://github.com/goanon-pro/zk-core" target="_blank" class="btn btn-ghost" style="padding:4px 10px; font-size:11px">GitHub</a>
+      </div>
+    </div>
+
+    <div style="padding: 8px 0 4px;">
+      <button id="btn-nuke" class="btn btn-danger btn-full">
+        Remove credential &amp; clear all data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Proof generation overlay ── -->
+<div id="proof-overlay">
+  <div class="spinner"></div>
+  <div style="font-size: 13px; font-weight: 600; color: var(--text);">Generating ZK proof…</div>
+  <div class="proof-step" id="proof-step-1">⬜ Decrypting credential</div>
+  <div class="proof-step" id="proof-step-2">⬜ Running circuit</div>
+  <div class="proof-step" id="proof-step-3">⬜ Proof ready</div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>

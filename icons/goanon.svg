@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="250" y1="28" x2="250" y2="462" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#a89fff"/>
+      <stop offset="100%" stop-color="#5a4fd1"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="250" y1="28" x2="250" y2="462" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="60%"  stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.00"/>
+    </linearGradient>
+    <filter id="shadow" x="-18%" y="-18%" width="136%" height="136%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="b"/>
+      <feFlood flood-color="#7c6fff" flood-opacity="0.45" result="c"/>
+      <feComposite in="c" in2="b" operator="in" result="s"/>
+      <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <mask id="shield-mask">
+      <!-- Shield shape as white fill = visible area -->
+      <path fill="white" d="
+        M250 34
+        C232 40 146 72 98 94
+        C68 108 54 126 50 152
+        C44 188 44 230 52 270
+        C68 348 118 396 166 424
+        C198 442 228 454 250 462
+        C272 454 302 442 334 424
+        C382 396 432 348 448 270
+        C456 230 456 188 450 152
+        C446 126 432 108 402 94
+        C354 72 268 40 250 34Z
+      "/>
+    </mask>
+  </defs>
+
+  <!-- Outer glow -->
+  <path
+    d="M250 34 C232 40 146 72 98 94 C68 108 54 126 50 152 C44 188 44 230 52 270 C68 348 118 396 166 424 C198 442 228 454 250 462 C272 454 302 442 334 424 C382 396 432 348 448 270 C456 230 456 188 450 152 C446 126 432 108 402 94 C354 72 268 40 250 34Z"
+    fill="#7c6fff" opacity="0.28" filter="url(#shadow)"
+  />
+
+  <!-- Shield body -->
+  <path
+    d="M250 34 C232 40 146 72 98 94 C68 108 54 126 50 152 C44 188 44 230 52 270 C68 348 118 396 166 424 C198 442 228 454 250 462 C272 454 302 442 334 424 C382 396 432 348 448 270 C456 230 456 188 450 152 C446 126 432 108 402 94 C354 72 268 40 250 34Z"
+    fill="url(#g1)"
+  />
+
+  <!-- Inner shine -->
+  <path
+    d="M250 34 C232 40 146 72 98 94 C68 108 54 126 50 152 C44 188 44 230 52 270 C68 348 118 396 166 424 C198 442 228 454 250 462 C272 454 302 442 334 424 C382 396 432 348 448 270 C456 230 456 188 450 152 C446 126 432 108 402 94 C354 72 268 40 250 34Z"
+    fill="url(#g2)"
+  />
+
+  <!-- Shield border -->
+  <path
+    d="M250 34 C232 40 146 72 98 94 C68 108 54 126 50 152 C44 188 44 230 52 270 C68 348 118 396 166 424 C198 442 228 454 250 462 C272 454 302 442 334 424 C382 396 432 348 448 270 C456 230 456 188 450 152 C446 126 432 108 402 94 C354 72 268 40 250 34Z"
+    fill="none" stroke="rgba(255,255,255,0.30)" stroke-width="4"
+  />
+
+  <!-- Person silhouette — white -->
+  <!-- Head -->
+  <circle cx="250" cy="185" r="52" fill="rgba(255,255,255,0.95)"/>
+  <!-- Body / shoulders -->
+  <path
+    d="M144 358 C144 296 188 272 218 264 C230 260 240 258 250 258 C260 258 270 260 282 264 C312 272 356 296 356 358 L356 372 C356 386 345 395 332 395 L168 395 C155 395 144 386 144 372 Z"
+    fill="rgba(255,255,255,0.95)"
+  />
+
+  <!-- Subtle depth overlay on person (same purple, low opacity) -->
+  <circle cx="250" cy="185" r="52" fill="url(#g1)" opacity="0.18"/>
+  <path
+    d="M144 358 C144 296 188 272 218 264 C230 260 240 258 250 258 C260 258 270 260 282 264 C312 272 356 296 356 358 L356 372 C356 386 345 395 332 395 L168 395 C155 395 144 386 144 372 Z"
+    fill="url(#g1)" opacity="0.18"
+  />
+
+  <!-- Lock at bottom -->
+  <g transform="translate(250,437)">
+    <!-- Shackle -->
+    <path d="M-13 -10 L-13 -22 C-13 -33 13 -33 13 -22 L13 -10"
+      stroke="rgba(255,255,255,0.88)" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- Body -->
+    <rect x="-19" y="-10" width="38" height="28" rx="5" fill="rgba(255,255,255,0.88)"/>
+    <!-- Keyhole -->
+    <circle cx="0" cy="5" r="5.5" fill="url(#g1)"/>
+    <rect x="-3" y="5" width="6" height="7" rx="1.5" fill="url(#g1)"/>
+  </g>
+</svg>

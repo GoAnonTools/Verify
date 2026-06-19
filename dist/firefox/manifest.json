@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "GoAnon Verify — private age proof",
+  "version": "0.2.0",
+  "description": "Prove age eligibility with local, privacy-preserving proofs. No ID upload. No per-use issuer tracking in strong privacy mode.",
+  "homepage_url": "https://goanon.pro/tools/verify.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "GoAnon Verify"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "circuits/age_verify.wasm",
+        "circuits/age_verify_final.zkey",
+        "popup/popup.html",
+        "popup/popup.js",
+        "sdk/goanon-verify.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:* http://127.0.0.1:*; img-src 'self' data:;"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "age-verify@goanon.pro",
+      "strict_min_version": "109.0"
+    }
+  },
+  "version_name": "0.2.0-alpha"
+}
