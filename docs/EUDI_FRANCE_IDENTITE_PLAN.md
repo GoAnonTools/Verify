@@ -163,3 +163,9 @@ Phase 5 — Audit
 8. No platform manipulation in the public path.
 9. Cooperating websites must explicitly request a GoAnon proof.
 10. Local test credentials are for development only.
+
+## Research lock
+
+Current official-source research is tracked in `docs/EUDI_RESEARCH_LOCK.md`.
+
+Implementation rule: keep the EUDI / France Identité connector disabled until the research lock confirms a privacy-preserving age-only presentation path with no exact birthdate disclosure, no stable wallet identifier disclosure, and no issuer/government callback during normal proof use.
