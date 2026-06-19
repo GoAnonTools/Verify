@@ -185,3 +185,59 @@ We do not receive your name, exact birthdate, ID document, face scan, wallet ide
 The current alpha binds the website challenge in the presentation envelope.
 
 A production circuit or wallet presentation should also bind the challenge and relying-party origin inside the cryptographic proof or wallet presentation so the proof cannot be replayed across websites.
+
+## Production-style backend demo and replay protection
+
+A production relying party must not only verify the proof envelope. It must also manage a server-side challenge lifecycle.
+
+GoAnon Verify includes a reference backend demo at:
+
+```text
+examples/backend-demo/
+```
+
+The demo shows the recommended flow:
+
+1. The backend generates a high-entropy random challenge.
+2. The backend stores only a hash of the challenge.
+3. The frontend asks the GoAnon Verify extension for a proof bound to that challenge and audience.
+4. The frontend sends the proof to the backend.
+5. The backend verifies:
+
+   * proof type;
+   * protocol version;
+   * age threshold claim;
+   * expiry;
+   * expected challenge;
+   * expected audience;
+   * demo/local-test mode policy.
+6. The backend marks the challenge as used only after successful verification.
+7. Reusing the same challenge is rejected with `challenge_already_used`.
+
+Local development may explicitly allow demo proofs:
+
+```sh
+GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
+```
+
+Production deployments must leave demo proof support disabled:
+
+```sh
+npm run demo:backend
+```
+
+A production database or cache should consume challenges atomically. For example:
+
+```sql
+UPDATE goanon_verify_challenges
+SET used_at = now()
+WHERE challenge_hash = $1
+  AND used_at IS NULL
+  AND expires_at > now()
+RETURNING *
+```
+
+The atomic consume step is the replay-protection boundary.
+
+Used challenge hashes should be retained for a short replay-retention window. This allows repeated replay attempts to be rejected explicitly as `challenge_already_used` instead of becoming indistinguishable from unknown challenges.
+

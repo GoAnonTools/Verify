@@ -226,7 +226,40 @@ npm run build:all
 npm run demo
 npm run circuit:build
 ```
+## Backend replay-protection demo
 
+A production-style relying-party backend demo is available in:
+
+```text
+examples/backend-demo/
+```
+
+It demonstrates server-generated single-use challenges, challenge-hash storage, proof verification, challenge consumption, replay rejection, and demo-proof rejection by default.
+
+Run the production-safe default:
+
+```sh
+npm run demo:backend
+```
+
+Run local extension demo mode:
+
+```sh
+GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
+```
+
+Then open:
+
+```text
+http://localhost:8787
+```
+
+Expected replay behavior:
+
+```text
+first proof  -> 200 verified
+replay proof -> 409 challenge_already_used
+```
 ## License
 
 © 2026 GoAnon | GoAnon.pro
