@@ -302,3 +302,15 @@ npm run demo:backend
 ~~~
 
 Important: `verifyProductionGoAnonAgeProof` is a production-facing interface placeholder. It does not by itself make local demo proofs into legal or production age verification. Real production verification still requires a reviewed wallet, EUDI, selective-disclosure, or ZK verifier implementation.
+
+## Trust anchors
+
+Production verification requires a trust-anchor or issuer allowlist.
+
+See:
+
+~~~text
+docs/TRUST_ANCHORS.md
+~~~
+
+Trust anchors are an alpha placeholder for the future EUDI, wallet, selective-disclosure, or ZK trust model. Do not treat a simple string allowlist as sufficient legal or production-grade verification.

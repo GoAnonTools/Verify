@@ -265,3 +265,15 @@ replay proof -> 409 challenge_already_used
 © 2026 GoAnon | GoAnon.pro
 
 Licensed under the Apache License, Version 2.0. See the `LICENSE` file for details.
+
+## Trust anchors
+
+Production verification requires an issuer or trust-anchor policy.
+
+See:
+
+~~~text
+docs/TRUST_ANCHORS.md
+~~~
+
+Trust anchors are currently an alpha placeholder for the future EUDI, wallet, selective-disclosure, or ZK trust model. Demo/manual issuers are not production trust anchors.
