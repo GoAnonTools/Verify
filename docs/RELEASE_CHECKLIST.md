@@ -134,3 +134,21 @@ A release can be tagged only when:
 * Production cryptographic verifier integration needs final review.
 * Circuit trusted setup artifacts are not production-ready.
 * Browser-store submission has not completed review.
+
+## Backend demo and production verifier hardening
+
+* [ ] `examples/backend-demo/` exists and runs.
+* [ ] Backend demo generates server-side single-use challenges.
+* [ ] Backend demo stores only challenge hashes, not raw challenges.
+* [ ] Backend demo consumes challenges only after successful verification.
+* [ ] Reusing the same proof/challenge returns `challenge_already_used`.
+* [ ] Used challenge hashes are retained for a short replay-retention window.
+* [ ] Backend demo rejects demo/local-test proofs by default.
+* [ ] Backend demo allows demo/local-test proofs only with explicit local development flag.
+* [ ] `NODE_ENV=production` with demo proofs enabled is blocked.
+* [ ] `sdk/verify-proof.mjs` returns stable typed verifier error codes.
+* [ ] `sdk/production-verifier.mjs` requires proof-type allowlisting.
+* [ ] `sdk/production-verifier.mjs` requires trust anchors or issuer allowlist for non-demo proofs.
+* [ ] `docs/TRUST_ANCHORS.md` explains current alpha trust-anchor limits.
+* [ ] Integration docs explain replay protection and production verifier hardening.
+* [ ] No documentation claims local demo proofs are legal or production age verification.
