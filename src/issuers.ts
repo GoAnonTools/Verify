@@ -15,6 +15,7 @@
  */
 
 import type { IssuedCredential } from "./engine.js";
+import { DISABLED_EUDI_WALLET_CONNECTOR } from "./wallet-connector.js";
 
 // ─── Issuer registry ──────────────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ export const ISSUERS: IssuerMeta[] = [
       "No name, exact birthdate, ID document, address, or face should be shared.",
       "GoAnon will only mark this as strong privacy after confirming no issuer/government callback during normal proof use.",
     ],
-    connect: connectEudiWallet,
+    connect: () => DISABLED_EUDI_WALLET_CONNECTOR.connect(),
   },
   {
     id: "manual",
@@ -86,28 +87,11 @@ export const ISSUERS: IssuerMeta[] = [
 
 // ─── EUDI-compatible wallet connector ─────────────────────────────────────────
 //
-// This is intentionally disabled in the alpha.
+// The disabled official-wallet scaffold lives in wallet-connector.ts.
 //
-// The connector should only be enabled after the official wallet flow passes
-// the GoAnon privacy gate:
-//
-//   - no issuer/government callback during normal proof use
-//   - no exact birthdate shared with websites
-//   - no stable wallet identifier shared
-//   - no GoAnon server involved in proof use
-//
-// Candidate implementation paths may include EUDI / France Identité age
-// attributes, OID4VP-style presentation, ISO 18013-7 mobile document
-// presentation, or browser-mediated credential APIs if they satisfy the
-// privacy gate.
-
-async function connectEudiWallet(): Promise<IssuedCredential> {
-  throw new Error(
-    "EUDI wallet connection is not available in this alpha yet. " +
-    "Next step: implement the official EUDI / France Identité age-verification flow. " +
-    "For now, use Local test credential to test the extension locally."
-  );
-}
+// Do not implement a FranceConnect-style identity login here. GoAnon Verify's
+// official-wallet path must remain age-only, challenge-bound, audience-bound,
+// and disabled until the EUDI research lock passes the privacy gate.
 
 // ─── Local test credential connector ──────────────────────────────────────────
 //

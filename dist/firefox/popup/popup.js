@@ -25368,6 +25368,83 @@ var init_engine = __esm({
   }
 });
 
+// src/wallet-connector.ts
+var EUDI_RESEARCH_LOCK_PATH = "docs/EUDI_RESEARCH_LOCK.md";
+var EUDI_PRIVACY_REQUIREMENTS = [
+  {
+    id: "age-threshold-only",
+    requirement: "Relying parties receive only age eligibility, not identity.",
+    blocking: true
+  },
+  {
+    id: "no-exact-birthdate",
+    requirement: "Exact birthdate is not disclosed to cooperating websites.",
+    blocking: true
+  },
+  {
+    id: "no-id-document-disclosure",
+    requirement: "Raw ID documents, passport scans, and face images are not disclosed to websites.",
+    blocking: true
+  },
+  {
+    id: "no-stable-wallet-id",
+    requirement: "No stable wallet, account, or cross-site identifier is disclosed.",
+    blocking: true
+  },
+  {
+    id: "no-issuer-callback-during-proof",
+    requirement: "Issuer, government, or wallet backend is not contacted during normal proof use.",
+    blocking: true
+  },
+  {
+    id: "no-goanon-server-during-proof",
+    requirement: "GoAnon server is not contacted during normal proof use.",
+    blocking: true
+  },
+  {
+    id: "challenge-bound",
+    requirement: "Proof is bound to a single-use relying-party challenge.",
+    blocking: true
+  },
+  {
+    id: "audience-bound",
+    requirement: "Proof is bound to the relying-party origin.",
+    blocking: true
+  },
+  {
+    id: "not-franceconnect-login",
+    requirement: "FranceConnect-style identity login is not treated as the age-only proof path.",
+    blocking: true
+  }
+];
+var DISABLED_EUDI_CONNECTOR_MESSAGE = [
+  "EUDI-compatible wallet connection is not available in this alpha yet.",
+  "Official wallet support will stay disabled until docs/EUDI_RESEARCH_LOCK.md confirms a privacy-preserving age-only presentation path.",
+  "Required: no exact birthdate to websites, no stable wallet identifier, no issuer/government callback during normal proof use, and no GoAnon server in proof use.",
+  "FranceConnect login is not enabled here because login federation is not the same as age-only proof.",
+  "For now, use Local test credential to test the extension locally."
+].join(" ");
+var WalletConnectorDisabledError = class extends Error {
+  code = "GOANON_WALLET_CONNECTOR_DISABLED";
+  constructor(message = DISABLED_EUDI_CONNECTOR_MESSAGE) {
+    super(message);
+    this.name = "WalletConnectorDisabledError";
+  }
+};
+function throwDisabledWalletConnector() {
+  throw new WalletConnectorDisabledError();
+}
+var DISABLED_EUDI_WALLET_CONNECTOR = {
+  id: "eudi",
+  name: "EUDI-compatible wallet",
+  kind: "eudi-compatible-wallet",
+  status: "disabled-alpha",
+  enabled: false,
+  researchLock: EUDI_RESEARCH_LOCK_PATH,
+  privacyRequirements: EUDI_PRIVACY_REQUIREMENTS,
+  connect: async () => throwDisabledWalletConnector()
+};
+
 // src/issuers.ts
 var ISSUERS = [
   {
@@ -25389,7 +25466,7 @@ var ISSUERS = [
       "No name, exact birthdate, ID document, address, or face should be shared.",
       "GoAnon will only mark this as strong privacy after confirming no issuer/government callback during normal proof use."
     ],
-    connect: connectEudiWallet
+    connect: () => DISABLED_EUDI_WALLET_CONNECTOR.connect()
   },
   {
     id: "manual",
@@ -25413,11 +25490,6 @@ var ISSUERS = [
     connect: connectManual
   }
 ];
-async function connectEudiWallet() {
-  throw new Error(
-    "EUDI wallet connection is not available in this alpha yet. Next step: implement the official EUDI / France Identit\xE9 age-verification flow. For now, use Local test credential to test the extension locally."
-  );
-}
 async function connectManual() {
   return new Promise((resolve, reject) => {
     const handler = (e2) => {
