@@ -24984,7 +24984,7 @@
   });
 
   // src/protocol.ts
-  var GOANON_PROTOCOL_VERSION = "goanon-age-v1";
+  var GOANON_PROTOCOL_VERSION = "goanon.verify.v1";
   var STRONG_PRIVACY_LABEL = Object.freeze({
     grade: "A",
     issuer_contacted_during_proof: false,
@@ -25078,6 +25078,7 @@
       audience: context.audience,
       domain: context.domain,
       challenge: context.challenge,
+      relyingPartyName: context.relyingPartyName,
       nonce: makeNonce(),
       expires_at: Date.now() + ttlSeconds * 1e3
     } : void 0;
@@ -25178,15 +25179,47 @@
     return !looksTrusted && !keyId;
   }
   function makeDemoAgeProof(args) {
+    const expiresAt = args.presentation?.expires_at ?? Date.now() + 3e5;
+    const relyingParty = args.presentation ? {
+      origin: args.presentation.audience,
+      domain: args.presentation.domain,
+      name: args.presentation.relyingPartyName ?? args.presentation.domain
+    } : void 0;
+    const warning = "Local test credential only. This is not legal age verification and not a production cryptographic proof.";
     return {
       type: "goanon.age.proof",
-      claim: "age_over_threshold",
+      protocol: GOANON_PROTOCOL_VERSION,
+      mode: "demo-local-test",
+      proof_type: "local-demo-not-cryptographic",
+      relying_party: relyingParty,
+      challenge: args.presentation?.challenge,
+      claim: {
+        type: "age_over_threshold",
+        threshold: args.thresholdYears,
+        result: true
+      },
       minAge: args.thresholdYears,
+      issued_at: args.generatedAt,
+      expires_at: expiresAt,
+      disclosed: ["age_over_threshold"],
+      not_disclosed: [
+        "name",
+        "exact_birthdate",
+        "id_document",
+        "passport_scan",
+        "face",
+        "biometric_data",
+        "wallet_identifier",
+        "address",
+        "passphrase",
+        "encrypted_credential"
+      ],
+      warning,
       proof: {
         pi_a: ["0", "0", "0"],
         pi_b: [["0", "0"], ["0", "0"], ["0", "0"]],
         pi_c: ["0", "0", "0"],
-        protocol: "goanon-demo-not-cryptographic",
+        protocol: "local-demo-not-cryptographic",
         curve: "demo"
       },
       publicSignals: {
@@ -25203,12 +25236,12 @@
         goanon_server_contacted_during_proof: false,
         persistent_identifiers_disclosed: [],
         personal_data_disclosed: ["age_over_threshold"],
-        warning: "Demo credential only. This proves the local UI flow, not a production cryptographic age proof."
+        warning
       },
       generated_at: args.generatedAt,
       issuer: args.credential.issuer,
-      issuer_key_id: args.credential.issuer_key_id ?? "demo:not-trusted",
-      protocol_version: PROTOCOL_VERSION
+      issuer_key_id: args.credential.issuer_key_id ?? "local-test:not-trusted",
+      protocol_version: GOANON_PROTOCOL_VERSION
     };
   }
 
@@ -25286,6 +25319,7 @@
           const context = {
             audience,
             domain,
+            relyingPartyName: request.relyingPartyName,
             challenge: request.challenge,
             minAge,
             ttlSeconds: settings.proofTtlSeconds

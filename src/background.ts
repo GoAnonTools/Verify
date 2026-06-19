@@ -132,6 +132,7 @@ async function handleMessage(
         const context: ProofRequestContext = {
           audience,
           domain,
+          relyingPartyName: request.relyingPartyName,
           challenge: request.challenge,
           minAge,
           ttlSeconds: settings.proofTtlSeconds,

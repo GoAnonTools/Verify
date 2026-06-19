@@ -25,8 +25,8 @@ export function explainProof(proof) {
     issuer: proof?.issuer,
     privacy: proof?.privacy,
     audience: proof?.presentation?.audience,
-    expires_at: proof?.presentation?.expires_at,
-    shares: ["age_over_threshold"],
+    expires_at: proof?.expires_at ?? proof?.presentation?.expires_at,
+    shares: proof?.disclosed ?? ["age_over_threshold"],
     does_not_share: ["name", "birthdate", "ID document", "address", "face", "wallet ID"],
   };
 }

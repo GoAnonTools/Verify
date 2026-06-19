@@ -8,7 +8,7 @@
  * generates a local proof, and returns only the proof envelope.
  */
 (function () {
-  const PROTOCOL = "goanon-age-v1";
+  const PROTOCOL = "goanon.verify.v1";
   const SOURCE_PAGE = "goanon-page";
   const SOURCE_EXTENSION = "goanon-extension";
   const REQUEST = "GOANON_VERIFY_REQUEST";

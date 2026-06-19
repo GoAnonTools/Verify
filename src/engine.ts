@@ -68,6 +68,7 @@ export interface StoredCredential {
 export interface ProofRequestContext {
   audience: string;
   domain: string;
+  relyingPartyName?: string;
   challenge: string;
   minAge?: number;
   ttlSeconds?: number;
@@ -77,8 +78,36 @@ export interface ProofRequestContext {
 export interface AgeProof {
   /** Stable envelope type for website SDKs. */
   type: "goanon.age.proof";
-  /** Human-readable claim. */
-  claim: "age_over_threshold";
+  /** Public protocol version for website SDKs. */
+  protocol: typeof GOANON_PROTOCOL_VERSION;
+  /** Implementation mode. */
+  mode: "demo-local-test" | "zk-local" | "wallet-presentation";
+  /** Proof implementation type. */
+  proof_type: string;
+  /** Relying party that requested the proof. */
+  relying_party?: {
+    origin: string;
+    domain: string;
+    name?: string;
+  };
+  /** Relying-party challenge copied to the top-level envelope for easy verification. */
+  challenge?: string;
+  /** Production-shaped claim object. */
+  claim: {
+    type: "age_over_threshold";
+    threshold: number;
+    result: boolean;
+  };
+  /** ISO timestamp when this proof envelope was issued. */
+  issued_at: string;
+  /** Unix ms expiry for this proof envelope. */
+  expires_at?: number;
+  /** Attributes intentionally disclosed to the website. */
+  disclosed: string[];
+  /** Sensitive attributes intentionally not disclosed. */
+  not_disclosed: string[];
+  /** Human-readable warning for demo or weaker flows. */
+  warning?: string;
   /** Requested minimum age, e.g. 18. */
   minAge: number;
   /** Groth16 proof object (π_a, π_b, π_c) */
@@ -276,6 +305,7 @@ export async function generateAgeProof(
     audience: context.audience,
     domain: context.domain,
     challenge: context.challenge,
+    relyingPartyName: context.relyingPartyName,
     nonce: makeNonce(),
     expires_at: Date.now() + ttlSeconds * 1000,
   } : undefined;
@@ -553,15 +583,49 @@ function makeDemoAgeProof(args: {
   generatedAt: string;
   presentation?: AgeProofPresentation;
 }): AgeProof {
+  const expiresAt = args.presentation?.expires_at ?? Date.now() + 300_000;
+  const relyingParty = args.presentation ? {
+    origin: args.presentation.audience,
+    domain: args.presentation.domain,
+    name: args.presentation.relyingPartyName ?? args.presentation.domain,
+  } : undefined;
+
+  const warning = "Local test credential only. This is not legal age verification and not a production cryptographic proof.";
+
   return {
     type: "goanon.age.proof",
-    claim: "age_over_threshold",
+    protocol: GOANON_PROTOCOL_VERSION,
+    mode: "demo-local-test",
+    proof_type: "local-demo-not-cryptographic",
+    relying_party: relyingParty,
+    challenge: args.presentation?.challenge,
+    claim: {
+      type: "age_over_threshold",
+      threshold: args.thresholdYears,
+      result: true,
+    },
     minAge: args.thresholdYears,
+    issued_at: args.generatedAt,
+    expires_at: expiresAt,
+    disclosed: ["age_over_threshold"],
+    not_disclosed: [
+      "name",
+      "exact_birthdate",
+      "id_document",
+      "passport_scan",
+      "face",
+      "biometric_data",
+      "wallet_identifier",
+      "address",
+      "passphrase",
+      "encrypted_credential",
+    ],
+    warning,
     proof: {
       pi_a: ["0", "0", "0"],
       pi_b: [["0", "0"], ["0", "0"], ["0", "0"]],
       pi_c: ["0", "0", "0"],
-      protocol: "goanon-demo-not-cryptographic",
+      protocol: "local-demo-not-cryptographic",
       curve: "demo",
     },
     publicSignals: {
@@ -578,12 +642,12 @@ function makeDemoAgeProof(args: {
       goanon_server_contacted_during_proof: false,
       persistent_identifiers_disclosed: [],
       personal_data_disclosed: ["age_over_threshold"],
-      warning: "Demo credential only. This proves the local UI flow, not a production cryptographic age proof.",
+      warning,
     },
     generated_at: args.generatedAt,
     issuer: args.credential.issuer,
-    issuer_key_id: args.credential.issuer_key_id ?? "demo:not-trusted",
-    protocol_version: PROTOCOL_VERSION,
+    issuer_key_id: args.credential.issuer_key_id ?? "local-test:not-trusted",
+    protocol_version: GOANON_PROTOCOL_VERSION,
   };
 }
 

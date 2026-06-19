@@ -10,7 +10,7 @@
  *   - The user must consent before a proof is generated.
  */
 
-export const GOANON_PROTOCOL_VERSION = "goanon-age-v1";
+export const GOANON_PROTOCOL_VERSION = "goanon.verify.v1";
 export const GOANON_EVENT_REQUEST = "GOANON_VERIFY_REQUEST";
 export const GOANON_EVENT_RESPONSE = "GOANON_VERIFY_RESPONSE";
 export const GOANON_EVENT_AVAILABLE = "GOANON_VERIFY_AVAILABLE";
@@ -59,6 +59,8 @@ export interface AgeProofPresentation {
   audience: string;
   /** The hostname shown to the user, e.g. example.com. */
   domain: string;
+  /** Optional display name supplied by the relying party. */
+  relyingPartyName?: string;
   /** Relying-party challenge/nonce. */
   challenge: string;
   /** Extension-generated nonce to make the envelope unique. */
