@@ -116,3 +116,15 @@ They must not include:
 - biometric data.
 
 Production relying parties should keep logs minimal and avoid storing full proof envelopes unless there is a clear legal, security, or compliance reason.
+
+## Trust-anchor config example
+
+An example trust-anchor configuration is included at:
+
+~~~text
+examples/backend-demo/trust-anchors.example.json
+~~~
+
+This file demonstrates the expected JSON shape for production verifier configuration.
+
+It is not a real production trust list.

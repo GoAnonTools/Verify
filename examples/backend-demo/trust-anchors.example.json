@@ -1,0 +1,11 @@
+{
+  "trustAnchors": [
+    "did:example:trusted-issuer"
+  ],
+  "allowedProofTypes": [
+    "cryptographic-wallet-presentation",
+    "eudi-wallet-presentation",
+    "selective-disclosure-credential",
+    "zk-age-proof"
+  ]
+}

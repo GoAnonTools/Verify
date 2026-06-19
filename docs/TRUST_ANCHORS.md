@@ -136,3 +136,43 @@ A production relying party still needs:
 - clear privacy and compliance review.
 
 GoAnon Verify proves eligibility, not identity.
+
+## JSON config loading
+
+GoAnon Verify includes a small trust-anchor config loader:
+
+~~~js
+import {
+  loadTrustAnchorConfig
+} from "./sdk/trust-anchor-config.mjs";
+
+const verifierConfig = await loadTrustAnchorConfig("./trust-anchors.json");
+
+const result = await verifyProductionGoAnonAgeProof(proof, verificationKey, {
+  ...verifierConfig,
+  expectedAudience: "https://example.com",
+  expectedChallenge: challengeFromServer,
+  minAge: 18,
+  verifyAgeProof
+});
+~~~
+
+Example config:
+
+~~~json
+{
+  "trustAnchors": [
+    "did:example:trusted-issuer"
+  ],
+  "allowedProofTypes": [
+    "cryptographic-wallet-presentation",
+    "eudi-wallet-presentation",
+    "selective-disclosure-credential",
+    "zk-age-proof"
+  ]
+}
+~~~
+
+The config loader validates shape and blocks obvious demo/manual issuer labels such as `manual`, `local`, `demo`, and `self-attested`.
+
+This is still an alpha integration convenience. A JSON allowlist does not replace real issuer signature validation, EUDI trust-list validation, wallet verification, selective-disclosure verification, or ZK proof verification.
