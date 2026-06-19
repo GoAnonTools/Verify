@@ -35,7 +35,7 @@ function waitForGoAnonExtension(timeoutMs = 1800) {
     const timer = setTimeout(() => {
       window.removeEventListener("goanon:available", onAvailable);
       reject(new Error(
-        "GoAnon extension was not detected on this page. Make sure the extension is loaded and reloaded in chrome://extensions."
+        "GoAnon Verify extension was not detected on this page. Make sure the extension is loaded and reloaded in chrome://extensions."
       ));
     }, timeoutMs);
 
@@ -87,10 +87,10 @@ proveButton.addEventListener("click", async () => {
   proveButton.disabled = true;
 
   try {
-    setStatus("Checking GoAnon extension…");
+    setStatus("Checking GoAnon Verify extension…");
 
     if (!window.GoAnonVerify) {
-      throw new Error("GoAnon SDK did not load.");
+      throw new Error("GoAnon Verify SDK did not load.");
     }
 
     await waitForGoAnonExtension();

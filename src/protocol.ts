@@ -22,7 +22,7 @@ export interface PrivacyLabel {
   grade: PrivacyGrade;
   /** True only when the issuer/wallet/government is contacted while proving to a website. */
   issuer_contacted_during_proof: boolean;
-  /** True only when a GoAnon server is contacted while proving to a website. */
+  /** True only when a a GoAnon Verify server or any GoAnon ecosystem server is contacted while proving to a website. */
   goanon_server_contacted_during_proof: boolean;
   /** Stable cross-site identifiers intentionally disclosed to the relying party. Should stay empty. */
   persistent_identifiers_disclosed: string[];
@@ -104,7 +104,7 @@ export function isValidChallenge(challenge: unknown): challenge is string {
 
 export function publicPrivacySummary(label: PrivacyLabel): string {
   if (label.grade === "A") {
-    return "Strong privacy: local proof, no issuer/government contact during use, no GoAnon server contact.";
+    return "Strong privacy: local proof, no issuer/government contact during use, no GoAnon Verify server or GoAnon ecosystem server contact.";
   }
   if (label.grade === "B") {
     return "Good privacy: no raw ID shared, but some metadata risk remains.";

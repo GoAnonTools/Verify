@@ -7,7 +7,7 @@ This release reframes the project from a platform-specific age-gate bypass proto
 - `src/protocol.ts` / `src/protocol.js` — explicit website request/response protocol.
 - `sdk/goanon-verify.js` — browser SDK for cooperating websites.
 - `sdk/verify-proof.mjs` — verifier helper for server/backend integrations.
-- `demo/index.html` and `demo/app.js` — GoAnon demo page flow.
+- `demo/index.html` and `demo/app.js` — GoAnon Verify demo page flow.
 - `docs/PRIVACY_MODEL.md` — Digital Dignity privacy model and privacy grades.
 - `docs/INTEGRATION_GUIDE.md` — website integration guide.
 - `docs/EUDI_READINESS.md` — EUDI wallet acceptance/privacy gate.
@@ -15,7 +15,7 @@ This release reframes the project from a platform-specific age-gate bypass proto
 
 ## Changed
 
-- Public content script now only responds to explicit GoAnon proof requests from cooperating websites.
+- Public content script now only responds to explicit GoAnon Verify proof requests from cooperating websites.
 - Legacy platform manipulation adapters are disabled from the public path and replaced with an integration policy file.
 - Proof envelope now includes:
   - claim type;
@@ -32,7 +32,7 @@ This release reframes the project from a platform-specific age-gate bypass proto
 ## Guardrails
 
 - No default YouTube/Twitch/Reddit/X/adult-site manipulation path.
-- Strong privacy mode rejects methods that contact an issuer/government/GoAnon server during normal proof use.
+- Strong privacy mode rejects methods that contact an issuer/government/GoAnon Verify server or other GoAnon ecosystem server during normal proof use.
 - EUDI-compatible wallet support is a planned placeholder until a wallet flow passes the privacy gate.
 
 ## Validation

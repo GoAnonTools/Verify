@@ -404,7 +404,7 @@ export async function verifyAgeProof(
   }
 
   if (proof.type !== "goanon.age.proof" || proof.claim !== "age_over_threshold") {
-    return { valid: false, reason: "Unsupported GoAnon proof envelope." };
+    return { valid: false, reason: "Unsupported GoAnon Verify proof envelope." };
   }
 
   // Verify the is_over_age public signal is actually 1
@@ -438,12 +438,12 @@ export async function verifyAgeProof(
     return { valid: false, reason: "Missing proof presentation envelope." };
   }
 
-  // GoAnon strong privacy rules: no per-use issuer/government/GoAnon server callbacks.
+  // GoAnon Verify strong privacy rules: no per-use issuer/government/GoAnon server callbacks.
   if (proof.privacy?.grade === "BLOCKED") {
     return { valid: false, reason: "Proof method is blocked by privacy policy." };
   }
   if (proof.privacy?.issuer_contacted_during_proof || proof.privacy?.goanon_server_contacted_during_proof) {
-    return { valid: false, reason: "Proof does not meet GoAnon strong privacy rules." };
+    return { valid: false, reason: "Proof does not meet GoAnon Verify strong privacy rules." };
   }
 
   const publicSignalsArray = [

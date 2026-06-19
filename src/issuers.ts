@@ -7,7 +7,7 @@
  *
  * Digital Dignity rule:
  * During normal website proof use, no government, issuer, wallet backend,
- * or GoAnon server should be contacted.
+ * or GoAnon Verify server or other GoAnon ecosystem server should be contacted.
  *
  * A trusted issuer or wallet may be involved when the user first obtains
  * a credential. After that, proving age to websites should disclose only
@@ -53,11 +53,11 @@ export const ISSUERS: IssuerMeta[] = [
     badge: "Experimental",
     openAccess: false,
     description:
-      "Use an official EU wallet age credential. GoAnon requests only age eligibility — not your full identity.",
+      "Use an official EU wallet age credential. GoAnon Verify requests only age eligibility — not your full identity.",
     privacyNotes: [
       "Goal: prove only that you are over the required age.",
       "No name, exact birthdate, ID document, address, or face should be shared.",
-      "GoAnon will only mark this as strong privacy after confirming no issuer/government callback during normal proof use.",
+      "GoAnon Verify will only mark this as strong privacy after confirming no issuer/government callback during normal proof use.",
     ],
     connect: () => DISABLED_EUDI_WALLET_CONNECTOR.connect(),
   },
@@ -118,7 +118,7 @@ async function connectManual(): Promise<IssuedCredential> {
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
 /**
- * Converts a birthdate string ("YYYY-MM-DD") to a local GoAnon test credential.
+ * Converts a birthdate string ("YYYY-MM-DD") to a local GoAnon Verify test credential.
  *
  * This is intentionally for development only. In production, credentials must
  * come from a trusted issuer or wallet.

@@ -25175,7 +25175,7 @@ async function verifyAgeProof(proof, vkeyJson, options = 300) {
     return { valid: false, reason: `Proof expired (${Math.round(proofAge)}s old, max ${maxAgeSeconds}s)` };
   }
   if (proof.type !== "goanon.age.proof" || proof.claim !== "age_over_threshold") {
-    return { valid: false, reason: "Unsupported GoAnon proof envelope." };
+    return { valid: false, reason: "Unsupported GoAnon Verify proof envelope." };
   }
   if (proof.publicSignals.is_over_age !== "1") {
     return { valid: false, reason: "Public signal is_over_age is not 1" };
@@ -25204,7 +25204,7 @@ async function verifyAgeProof(proof, vkeyJson, options = 300) {
     return { valid: false, reason: "Proof method is blocked by privacy policy." };
   }
   if (proof.privacy?.issuer_contacted_during_proof || proof.privacy?.goanon_server_contacted_during_proof) {
-    return { valid: false, reason: "Proof does not meet GoAnon strong privacy rules." };
+    return { valid: false, reason: "Proof does not meet GoAnon Verify strong privacy rules." };
   }
   const publicSignalsArray = [
     proof.publicSignals.commitment,
@@ -25388,7 +25388,7 @@ var FEATURE_FLAGS = {
       "No raw ID document, passport scan, or face image is disclosed to cooperating websites.",
       "No stable wallet, account, or cross-site identifier is disclosed.",
       "No issuer, government, wallet backend, or proof provider callback occurs during normal proof use.",
-      "No GoAnon server is contacted during normal proof use.",
+      "No a GoAnon Verify server or any GoAnon ecosystem server is contacted during normal proof use.",
       "The proof is bound to a single-use relying-party challenge.",
       "The proof is bound to the relying-party origin.",
       "The path is not just a FranceConnect-style identity login.",
@@ -25456,7 +25456,7 @@ var EUDI_PRIVACY_REQUIREMENTS = [
   },
   {
     id: "no-goanon-server-during-proof",
-    requirement: "GoAnon server is not contacted during normal proof use.",
+    requirement: "No GoAnon Verify server or other GoAnon ecosystem server is contacted during normal proof use.",
     blocking: true
   },
   {
@@ -25478,7 +25478,7 @@ var EUDI_PRIVACY_REQUIREMENTS = [
 var DISABLED_EUDI_CONNECTOR_MESSAGE = [
   "EUDI-compatible wallet connection is not available in this alpha yet.",
   "Official wallet support will stay disabled until docs/EUDI_RESEARCH_LOCK.md confirms a privacy-preserving age-only presentation path.",
-  "Required: no exact birthdate to websites, no stable wallet identifier, no issuer/government callback during normal proof use, and no GoAnon server in proof use.",
+  "Required: no exact birthdate to websites, no stable wallet identifier, no issuer/government callback during normal proof use, and no GoAnon Verify server or other GoAnon ecosystem server in proof use.",
   "FranceConnect login is not enabled here because login federation is not the same as age-only proof.",
   "For now, use Local test credential to test the extension locally."
 ].join(" ");
@@ -25525,11 +25525,11 @@ var ISSUERS = [
     privacyGrade: "pending",
     badge: "Experimental",
     openAccess: false,
-    description: "Use an official EU wallet age credential. GoAnon requests only age eligibility \u2014 not your full identity.",
+    description: "Use an official EU wallet age credential. GoAnon Verify requests only age eligibility \u2014 not your full identity.",
     privacyNotes: [
       "Goal: prove only that you are over the required age.",
       "No name, exact birthdate, ID document, address, or face should be shared.",
-      "GoAnon will only mark this as strong privacy after confirming no issuer/government callback during normal proof use."
+      "GoAnon Verify will only mark this as strong privacy after confirming no issuer/government callback during normal proof use."
     ],
     connect: () => DISABLED_EUDI_WALLET_CONNECTOR.connect()
   },
@@ -25799,7 +25799,7 @@ function showEudiExperimentalNotice() {
     \u2022 no issuer/government callback during normal proof use<br>
     \u2022 no exact birthdate shared with websites<br>
     \u2022 no stable wallet identifier shared<br>
-    \u2022 no GoAnon server involved in proof use
+    \u2022 no GoAnon Verify server or other GoAnon ecosystem server involved in proof use
     <br><br>
     For now, use Local test credential only to test the extension flow.
   `;

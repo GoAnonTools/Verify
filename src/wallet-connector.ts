@@ -60,7 +60,7 @@ export const EUDI_PRIVACY_REQUIREMENTS: readonly WalletPrivacyRequirement[] = [
   },
   {
     id: "no-goanon-server-during-proof",
-    requirement: "GoAnon server is not contacted during normal proof use.",
+    requirement: "No GoAnon Verify server or other GoAnon ecosystem server is contacted during normal proof use.",
     blocking: true,
   },
   {
@@ -83,7 +83,7 @@ export const EUDI_PRIVACY_REQUIREMENTS: readonly WalletPrivacyRequirement[] = [
 export const DISABLED_EUDI_CONNECTOR_MESSAGE = [
   "EUDI-compatible wallet connection is not available in this alpha yet.",
   "Official wallet support will stay disabled until docs/EUDI_RESEARCH_LOCK.md confirms a privacy-preserving age-only presentation path.",
-  "Required: no exact birthdate to websites, no stable wallet identifier, no issuer/government callback during normal proof use, and no GoAnon server in proof use.",
+  "Required: no exact birthdate to websites, no stable wallet identifier, no issuer/government callback during normal proof use, and no GoAnon Verify server or other GoAnon ecosystem server in proof use.",
   "FranceConnect login is not enabled here because login federation is not the same as age-only proof.",
   "For now, use Local test credential to test the extension locally.",
 ].join(" ");

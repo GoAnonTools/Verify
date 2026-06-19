@@ -314,7 +314,7 @@ function showEudiExperimentalNotice() {
     • no issuer/government callback during normal proof use<br>
     • no exact birthdate shared with websites<br>
     • no stable wallet identifier shared<br>
-    • no GoAnon server involved in proof use
+    • no GoAnon Verify server or other GoAnon ecosystem server involved in proof use
     <br><br>
     For now, use Local test credential only to test the extension flow.
   `;

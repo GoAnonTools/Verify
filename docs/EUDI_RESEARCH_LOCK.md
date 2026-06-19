@@ -46,7 +46,7 @@ The target official-wallet proof should support:
 * unlinkability across relying parties;
 * no exact birthdate disclosure;
 * no identity attributes unless explicitly required by a separate use case;
-* no GoAnon server in normal proof use.
+* no GoAnon Verify server or other GoAnon ecosystem server in normal proof use.
 
 The ideal public envelope remains:
 
@@ -104,7 +104,7 @@ A FranceConnect integration may be useful for a separate login or account-verifi
 * no full identity disclosure to the relying party;
 * no stable cross-site identifier;
 * no issuer/provider knowledge of relying-party proof use;
-* no GoAnon server during normal proof use;
+* no GoAnon Verify server or other GoAnon ecosystem server during normal proof use;
 * proof challenge bound to the relying party.
 
 ## Digital Credentials API note
@@ -187,7 +187,7 @@ GoAnon Verify remains:
 * no exact birthdate disclosure;
 * no stable wallet ID disclosure;
 * no issuer/government callback during normal proof use;
-* no GoAnon server during normal proof use;
+* no GoAnon Verify server or other GoAnon ecosystem server during normal proof use;
 * not a bypass tool.
 
 The next implementation step is a disabled wallet connector scaffold, not a live France Identité integration.

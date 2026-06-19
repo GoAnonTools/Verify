@@ -44,7 +44,7 @@ The public UI should not show Yivi, itsme, BankID, or country-specific providers
 Strong privacy mode requires:
 
 - no issuer or government callback during normal proof use
-- no GoAnon server contacted during normal proof use
+- no GoAnon Verify server contacted during normal proof use
 - no stable user identifier disclosed
 - no exact birthdate disclosed
 - no full identity disclosed
@@ -84,7 +84,7 @@ Blocked:
 - exact birthdate required unnecessarily
 - stable wallet/user identifier disclosed
 - government/issuer can see each website verification
-- GoAnon becomes a tracking relay
+- GoAnon Verify becomes a tracking relay
 
 ## France Identité investigation checklist
 
@@ -114,7 +114,7 @@ Phase 1 — Current alpha
 
 - EUDI-first UI
 - local test credential for development
-- GoAnon demo page
+- GoAnon Verify demo page
 - website proof request protocol
 - no platform-specific bypass adapters in public path
 
@@ -154,14 +154,14 @@ Phase 5 — Audit
 ## Hard product rules
 
 1. GoAnon Verify proves eligibility, not identity.
-2. GoAnon must not collect proof events.
-3. GoAnon must not know which websites users verify with.
+2. GoAnon Verify must not collect proof events.
+3. GoAnon Verify must not know which websites users verify with.
 4. Websites should not receive more than age eligibility.
 5. Issuers/governments must not be contacted during normal proof use in strong privacy mode.
 6. Any weaker flow must be clearly labelled.
 7. The extension must be open source and auditable.
 8. No platform manipulation in the public path.
-9. Cooperating websites must explicitly request a GoAnon proof.
+9. Cooperating websites must explicitly request a GoAnon Verify proof.
 10. Local test credentials are for development only.
 
 ## Research lock

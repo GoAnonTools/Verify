@@ -2,7 +2,7 @@
  * goanon Verify — Content Script
  *
  * This is the bridge between cooperating websites and the private extension
- * background worker. It listens for explicit GoAnon proof requests from the
+ * background worker. It listens for explicit GoAnon Verify proof requests from the
  * page and returns a proof only after user consent.
  *
  * It intentionally does NOT manipulate third-party platform internals.
@@ -44,7 +44,7 @@ async function handlePageMessage(event: MessageEvent<PageMessage>) {
       return postResponse({
         requestId: request.requestId,
         ok: false,
-        error: "No GoAnon credential is stored in the extension.",
+        error: "No GoAnon Verify credential is stored in the extension.",
       });
     }
 
@@ -90,7 +90,7 @@ async function handlePageMessage(event: MessageEvent<PageMessage>) {
 
 function validateRequest(request: Partial<AgeProofRequest>) {
   if (request.protocol !== GOANON_PROTOCOL_VERSION) {
-    throw new Error("Unsupported GoAnon protocol version.");
+    throw new Error("Unsupported GoAnon Verify protocol version.");
   }
   if (!request.requestId || typeof request.requestId !== "string") {
     throw new Error("Missing requestId.");

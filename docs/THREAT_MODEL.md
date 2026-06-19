@@ -5,16 +5,16 @@
 GoAnon Verify tries to prevent:
 
 - websites collecting ID documents or birthdates for simple age eligibility;
-- GoAnon becoming a central verification logger;
+- GoAnon Verify becoming a central verification logger;
 - issuers/governments learning every website where a credential is used;
 - websites linking the same user across different sites through stable proof identifiers;
 - replay of an old proof on a different website or in a later session.
 
 ## Non-goals
 
-GoAnon cannot hide the user's IP address from the website. Users who need network anonymity should use a VPN, Tor, or another network privacy tool.
+GoAnon Verify cannot hide the user's IP address from the website. Users who need network anonymity should use GoAnon VPN, Tor, or another network privacy tool.
 
-GoAnon also cannot force a website to accept a proof. Websites must integrate and verify the protocol.
+GoAnon Verify also cannot force a website to accept a proof. Websites must integrate and verify the protocol.
 
 ## Main risks
 
@@ -24,7 +24,7 @@ A local demo credential proves only that the user typed a date. Production requi
 
 ### 2. Issuer tracking through online status checks
 
-Per-use issuer checks can create a log of where credentials are used. GoAnon should prefer offline/unlinkable revocation mechanisms and downgrade or block per-use callbacks.
+Per-use issuer checks can create a log of where credentials are used. GoAnon Verify should prefer offline/unlinkable revocation mechanisms and downgrade or block per-use callbacks.
 
 ### 3. Cross-site linkability
 

@@ -44,7 +44,7 @@ export const FEATURE_FLAGS = {
       "No raw ID document, passport scan, or face image is disclosed to cooperating websites.",
       "No stable wallet, account, or cross-site identifier is disclosed.",
       "No issuer, government, wallet backend, or proof provider callback occurs during normal proof use.",
-      "No GoAnon server is contacted during normal proof use.",
+      "No a GoAnon Verify server or any GoAnon ecosystem server is contacted during normal proof use.",
       "The proof is bound to a single-use relying-party challenge.",
       "The proof is bound to the relying-party origin.",
       "The path is not just a FranceConnect-style identity login.",

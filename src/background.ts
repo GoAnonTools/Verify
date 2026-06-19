@@ -100,7 +100,7 @@ async function handleMessage(
       // ── Proof request from cooperating website content bridge ──
       case "REQUEST_PROOF": {
         if (!settings.interceptEnabled) {
-          sendResponse({ success: false, error: "GoAnon website requests are disabled in settings." });
+          sendResponse({ success: false, error: "GoAnon Verify website requests are disabled in settings." });
           break;
         }
 
@@ -119,13 +119,13 @@ async function handleMessage(
         if (settings.requireStrongPrivacy) {
           const privacy = stored.privacy ?? STRONG_PRIVACY_LABEL;
           if (privacy.issuer_contacted_during_proof || privacy.goanon_server_contacted_during_proof || privacy.grade === "BLOCKED") {
-            sendResponse({ success: false, error: "This credential method does not meet GoAnon strong privacy rules." });
+            sendResponse({ success: false, error: "This credential method does not meet GoAnon Verify strong privacy rules." });
             break;
           }
         }
 
         if (!request.challenge || typeof request.challenge !== "string") {
-          sendResponse({ success: false, error: "Missing website challenge. The site must use the GoAnon verifier SDK." });
+          sendResponse({ success: false, error: "Missing website challenge. The site must use the GoAnon Verify verifier SDK." });
           break;
         }
 

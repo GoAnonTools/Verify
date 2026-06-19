@@ -2,7 +2,7 @@
  * goanon Verify — Website Integrations
  *
  * Public builds use an explicit integration model only. A cooperating website
- * asks for a proof through the GoAnon website protocol; the extension never
+ * asks for a proof through the GoAnon Verify website protocol; the extension never
  * manipulates platform internals, cookies, private APIs, or DOM gates.
  */
 
@@ -14,7 +14,7 @@ export interface IntegrationPolicy {
 
 export const PUBLIC_INTEGRATIONS: IntegrationPolicy[] = [
   {
-    name: "GoAnon demo page",
+    name: "GoAnon Verify demo page",
     description: "Reference verifier flow for goanon.pro/verify and local demos.",
     allowedByDefault: true,
   },

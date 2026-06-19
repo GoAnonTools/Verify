@@ -44,7 +44,7 @@ async function handlePageMessage(event) {
       return postResponse({
         requestId: request.requestId,
         ok: false,
-        error: "No GoAnon credential is stored in the extension."
+        error: "No GoAnon Verify credential is stored in the extension."
       });
     }
     showGoanonBadge("request");
@@ -85,7 +85,7 @@ async function handlePageMessage(event) {
 }
 function validateRequest(request) {
   if (request.protocol !== GOANON_PROTOCOL_VERSION) {
-    throw new Error("Unsupported GoAnon protocol version.");
+    throw new Error("Unsupported GoAnon Verify protocol version.");
   }
   if (!request.requestId || typeof request.requestId !== "string") {
     throw new Error("Missing requestId.");

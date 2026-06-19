@@ -11,7 +11,7 @@ For age verification, that means a website can learn `age_over_threshold = true`
 A proof method receives the GoAnon `Privacy Grade A` label only when all of these are true:
 
 - proof generation happens locally on the user's device;
-- no government, issuer, wallet backend, or GoAnon server is contacted during normal website proof use;
+- no government, issuer, wallet backend, or a GoAnon Verify server or any GoAnon ecosystem server is contacted during normal website proof use;
 - the proof is fresh and bound to the requesting website origin;
 - the proof does not contain a stable cross-site user identifier;
 - the website receives only the age-threshold claim and cryptographic proof material;
@@ -52,7 +52,7 @@ A method is downgraded or blocked if it performs a per-use online issuer/status 
 
 | Grade | Meaning |
 |---|---|
-| A | Local/offline proof use; no issuer/government/GoAnon callback; no stable ID. |
+| A | Local/offline proof use; no issuer/government/GoAnon Verify or GoAnon ecosystem callback; no stable ID. |
 | B | No raw ID shared, but there is some metadata or implementation risk. |
 | C | The method may contact an issuer/status service during proof use. Warn users. |
 | BLOCKED | The method creates tracking or discloses unnecessary identity data. |

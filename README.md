@@ -1,3 +1,11 @@
+## Naming clarity
+
+GoAnon is the broader privacy tools ecosystem at goanon.pro.
+
+GoAnon Verify is this specific privacy-preserving age proof tool.
+
+Use “GoAnon Verify” on first mention and “Verify” when the context is already clear. Avoid using “GoAnon” alone when referring to this extension, SDK, verifier, proof protocol, backend demo, or age-proof flow.
+
 # Verify
 
 **Verify** is a privacy-preserving age proof tool from the **GoAnon ecosystem**.
@@ -13,7 +21,7 @@ This repository is an **alpha prototype** for:
 * a demo page for `goanon.pro/verify`;
 * a verifier SDK for cooperating websites;
 * an EUDI-compatible wallet-first architecture;
-* strict privacy labels that reject per-use government, issuer, or GoAnon tracking.
+* strict privacy labels that reject per-use government, issuer, or GoAnon Verify tracking or broader GoAnon ecosystem tracking.
 
 ## Product direction
 
@@ -23,7 +31,7 @@ The earlier prototype included platform-specific adapters for services such as Y
 
 The public direction is:
 
-1. **GoAnon demo page** — shows the private proof flow clearly.
+1. **GoAnon Verify demo page** — shows the private proof flow clearly.
 2. **Cooperating websites** — any website can request and verify a proof using the SDK.
 3. **EUDI-compatible wallet flows** — only when they support age-only, unlinkable presentation without per-use issuer/government tracking.
 4. **Local test credential** — development only; not real identity or legal age verification.
@@ -59,9 +67,9 @@ The website does **not** receive:
 
 ## Government / issuer tracking protection
 
-GoAnon’s strong privacy rule is:
+GoAnon Verify’s strong privacy rule is:
 
-> No government, issuer, wallet backend, or GoAnon server should be contacted during normal website proof use.
+> No government, issuer, wallet backend, or GoAnon Verify server or other GoAnon ecosystem server should be contacted during normal website proof use.
 
 A trusted issuer or wallet may be involved when the user first obtains a credential. After that, proving age to websites should happen locally or through a wallet presentation flow that does not reveal where the proof is used.
 
@@ -69,7 +77,7 @@ The extension uses privacy labels:
 
 | Grade   | Meaning                                                                                                 |
 | ------- | ------------------------------------------------------------------------------------------------------- |
-| A       | Digital Dignity Protected: local/offline proof use, no issuer/government/GoAnon callback, no stable ID. |
+| A       | Digital Dignity Protected: local/offline proof use, no issuer/government/GoAnon Verify or GoAnon ecosystem callback, no stable ID. |
 | B       | Acceptable with warning: no raw ID shared, but implementation or metadata risk remains.                 |
 | C       | Limited privacy: the method may contact an issuer/status service during proof use. Warn users.          |
 | BLOCKED | The method creates tracking risk or discloses unnecessary identity data.                                |
@@ -148,7 +156,7 @@ Verify is being prepared for official EU wallet age proofs. This connector will 
 * no issuer/government callback during normal proof use;
 * no exact birthdate shared with websites;
 * no stable wallet identifier shared;
-* no GoAnon server involved in proof use.
+* no GoAnon Verify server or other GoAnon ecosystem server involved in proof use.
 
 ### Local test credential
 

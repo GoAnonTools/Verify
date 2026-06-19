@@ -177,7 +177,7 @@ Recommended user-facing summary:
 
 ```text
 We ask GoAnon Verify only whether you meet the age requirement.
-We do not receive your name, exact birthdate, ID document, face scan, wallet identifier, or GoAnon passphrase.
+We do not receive your name, exact birthdate, ID document, face scan, wallet identifier, or GoAnon Verify passphrase.
 ```
 
 ## Alpha note
