@@ -23,6 +23,7 @@ export const GOANON_VERIFY_PRODUCTION_ERROR_CODES = Object.freeze({
   PROOF_TYPE_NOT_ALLOWED: "proof_type_not_allowed",
   TRUST_ANCHORS_REQUIRED: "trust_anchors_required",
   ISSUER_NOT_TRUSTED: "issuer_not_trusted",
+  DEMO_NOT_ALLOWED_IN_PRODUCTION: "demo_not_allowed_in_production",
 });
 
 export const DEFAULT_PRODUCTION_PROOF_TYPES = Object.freeze([
@@ -37,6 +38,15 @@ export async function verifyProductionGoAnonAgeProof(
   verificationKey,
   options = {}
 ) {
+  const demoPolicyViolation = getDemoPolicyViolation(options);
+  if (demoPolicyViolation) {
+    return fail(
+      demoPolicyViolation.code,
+      demoPolicyViolation.error,
+      demoPolicyViolation.details
+    );
+  }
+
   const envelope = validateGoAnonEnvelope(proof, options);
 
   const isDemoProof =
@@ -123,4 +133,38 @@ export function isTrustedIssuer(issuer, trustAnchors = []) {
       anchor.did === issuer
     );
   });
+}
+
+
+export function isProductionMode(options = {}) {
+  const env =
+    options.environment ??
+    globalThis.process?.env ??
+    {};
+
+  return (
+    options.production === true ||
+    options.mode === "production" ||
+    options.nodeEnv === "production" ||
+    env.NODE_ENV === "production"
+  );
+}
+
+export function getDemoPolicyViolation(options = {}) {
+  if (options.allowDemo !== true) {
+    return null;
+  }
+
+  if (!isProductionMode(options)) {
+    return null;
+  }
+
+  return {
+    code: GOANON_VERIFY_PRODUCTION_ERROR_CODES.DEMO_NOT_ALLOWED_IN_PRODUCTION,
+    error: "Demo proofs cannot be enabled in production mode.",
+    details: {
+      allowDemo: true,
+      production: true,
+    },
+  };
 }

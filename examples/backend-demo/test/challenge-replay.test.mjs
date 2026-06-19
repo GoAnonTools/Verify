@@ -279,3 +279,22 @@ test("used challenge records are retained long enough to reject replay", () => {
   assert.equal(replay.status, 409);
   assert.equal(replay.code, "challenge_already_used");
 });
+
+test("server refuses allowDemo=true when NODE_ENV=production", () => {
+  const previous = process.env.NODE_ENV;
+
+  try {
+    process.env.NODE_ENV = "production";
+
+    assert.throws(
+      () => createDemoServer({ allowDemo: true }),
+      /Demo proofs cannot be enabled in production mode/
+    );
+  } finally {
+    if (previous === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = previous;
+    }
+  }
+});

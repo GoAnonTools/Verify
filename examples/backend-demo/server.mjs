@@ -4,6 +4,9 @@ import { readFile } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as verifier from "../../sdk/verify-proof.mjs";
+import {
+  getDemoPolicyViolation
+} from "../../sdk/production-verifier.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, "public");
@@ -250,6 +253,15 @@ export function createDemoServer({
   challengeTtlMs = DEFAULT_CHALLENGE_TTL_MS,
   usedChallengeRetentionMs = DEFAULT_USED_CHALLENGE_RETENTION_MS
 } = {}) {
+  const demoPolicyViolation = getDemoPolicyViolation({
+    allowDemo,
+    environment: process.env
+  });
+
+  if (demoPolicyViolation) {
+    throw new Error(demoPolicyViolation.error);
+  }
+
   const challengeStore = new ChallengeStore({
     ttlMs: challengeTtlMs,
     usedChallengeRetentionMs

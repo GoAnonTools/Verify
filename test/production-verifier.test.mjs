@@ -8,6 +8,8 @@ import {
   DEFAULT_PRODUCTION_PROOF_TYPES,
   GOANON_VERIFY_PRODUCTION_ERROR_CODES,
   extractIssuer,
+  getDemoPolicyViolation,
+  isProductionMode,
   isTrustedIssuer,
   verifyProductionGoAnonAgeProof,
 } from "../sdk/production-verifier.mjs";
@@ -73,6 +75,35 @@ function makeProductionProof(overrides = {}) {
 
   assert.equal(result.ok, false);
   assert.equal(result.code, GOANON_VERIFY_ERROR_CODES.DEMO_PROOF_REJECTED);
+}
+
+
+{
+  const result = await verifyProductionGoAnonAgeProof(makeProof(), null, {
+    expectedAudience: "https://example.com",
+    expectedChallenge: "test-challenge-1234567890",
+    minAge: 18,
+    allowDemo: true,
+    production: true,
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, GOANON_VERIFY_PRODUCTION_ERROR_CODES.DEMO_NOT_ALLOWED_IN_PRODUCTION);
+}
+
+{
+  const result = await verifyProductionGoAnonAgeProof(makeProductionProof(), null, {
+    expectedAudience: "https://example.com",
+    expectedChallenge: "test-challenge-1234567890",
+    minAge: 18,
+    allowDemo: true,
+    production: true,
+    trustAnchors: ["did:example:trusted-issuer"],
+    verifyAgeProof: () => ({ ok: true }),
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, GOANON_VERIFY_PRODUCTION_ERROR_CODES.DEMO_NOT_ALLOWED_IN_PRODUCTION);
 }
 
 {
@@ -174,5 +205,21 @@ function makeProductionProof(overrides = {}) {
   assert.equal(isTrustedIssuer("did:example:trusted-issuer", [{ id: "did:example:trusted-issuer" }]), true);
   assert.equal(isTrustedIssuer("did:example:trusted-issuer", ["did:example:other-issuer"]), false);
 }
+
+
+{
+  assert.equal(isProductionMode({ production: true }), true);
+  assert.equal(isProductionMode({ mode: "production" }), true);
+  assert.equal(isProductionMode({ nodeEnv: "production" }), true);
+  assert.equal(isProductionMode({ environment: { NODE_ENV: "production" } }), true);
+  assert.equal(isProductionMode({ environment: { NODE_ENV: "development" } }), false);
+
+  assert.equal(getDemoPolicyViolation({ allowDemo: false, production: true }), null);
+  assert.equal(getDemoPolicyViolation({ allowDemo: true, production: false }), null);
+
+  const violation = getDemoPolicyViolation({ allowDemo: true, production: true });
+  assert.equal(violation.code, GOANON_VERIFY_PRODUCTION_ERROR_CODES.DEMO_NOT_ALLOWED_IN_PRODUCTION);
+}
+
 
 console.log("production verifier tests passed");
