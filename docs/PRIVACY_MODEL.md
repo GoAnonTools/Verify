@@ -67,3 +67,53 @@ The current circuit proves an age threshold from an encrypted local credential. 
 - independent security review.
 
 Until then, this package is a technical alpha and developer demo, not a legal age-verification product.
+
+## Backend privacy addendum
+
+GoAnon Verify’s privacy model depends on both the browser proof flow and the relying-party backend.
+
+A cooperating website should learn only whether the user satisfies the required age threshold. It should not receive the user’s name, exact birthdate, ID document, face scan, biometric data, wallet identifier, address, passphrase, or encrypted credential.
+
+### Challenge privacy
+
+The relying-party backend should generate a single-use challenge and store only a challenge hash.
+
+The raw challenge should be treated as short-lived verification material, not as user identity.
+
+Recommended behavior:
+
+* generate random high-entropy challenges;
+* store only challenge hashes;
+* expire unused challenges quickly;
+* retain used challenge hashes only long enough to reject replay attempts;
+* avoid logging raw challenges.
+
+### Proof privacy
+
+In production, relying parties should avoid storing full proof envelopes unless there is a clear legal, security, or compliance reason.
+
+Recommended production logs should be minimal:
+
+* timestamp;
+* verification result;
+* stable error code, if failed;
+* threshold requested;
+* relying-party audience;
+* no raw ID data;
+* no exact birthdate;
+* no stable wallet identifier.
+
+### Demo proof privacy
+
+Local demo proofs are development-only.
+
+They must not be described as legal or production age verification. Production verifiers reject them by default, and production mode blocks enabling demo proofs.
+
+### Trust-anchor privacy
+
+Trust anchors define which issuers, wallets, credentials, or proof systems a relying party may accept.
+
+A trust-anchor allowlist must not become a tracking system. GoAnon Verify should prefer verification methods that avoid per-use callbacks to an issuer, government endpoint, wallet backend, GoAnon Verify server, or other GoAnon ecosystem server.
+
+GoAnon Verify proves eligibility, not identity.
+
