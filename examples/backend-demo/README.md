@@ -83,3 +83,36 @@ The local demo mode remains available only for development:
 ~~~sh
 GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
 ~~~
+
+## Safe structured logs
+
+The backend demo can emit minimal structured JSON logs:
+
+~~~sh
+GOANON_VERIFY_STRUCTURED_LOGS=true GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
+~~~
+
+The logs are designed for debugging the challenge lifecycle without leaking sensitive proof material.
+
+They may include:
+
+- event name;
+- timestamp;
+- verification result;
+- stable error code;
+- audience;
+- threshold;
+- short challenge reference derived from the stored challenge hash.
+
+They must not include:
+
+- raw challenge;
+- full proof envelope;
+- birthdate;
+- passphrase;
+- credential material;
+- wallet identifier;
+- ID document data;
+- biometric data.
+
+Production relying parties should keep logs minimal and avoid storing full proof envelopes unless there is a clear legal, security, or compliance reason.

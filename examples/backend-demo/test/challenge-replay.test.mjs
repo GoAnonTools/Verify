@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ChallengeStore, createDemoServer } from "../server.mjs";
+import {
+  ChallengeStore,
+  createDemoServer,
+  createSafeStructuredLogger,
+  sanitizeLogFields,
+} from "../server.mjs";
 
 function listen(app) {
   return new Promise(resolve => {
@@ -298,3 +303,79 @@ test("server refuses allowDemo=true when NODE_ENV=production", () => {
     }
   }
 });
+
+
+test("safe structured logger redacts sensitive fields", () => {
+  const clean = sanitizeLogFields({
+    challenge: "raw-challenge",
+    proof: { type: "goanon.age.proof" },
+    nested: {
+      passphrase: "secret",
+      walletIdentifier: "wallet-id",
+      safe: "ok"
+    }
+  });
+
+  assert.equal(clean.challenge, "[redacted]");
+  assert.equal(clean.proof, "[redacted]");
+  assert.equal(clean.nested.passphrase, "[redacted]");
+  assert.equal(clean.nested.walletIdentifier, "[redacted]");
+  assert.equal(clean.nested.safe, "ok");
+});
+
+test("backend structured logs do not expose raw challenge or proof envelope", async () => {
+  const records = [];
+  const logger = createSafeStructuredLogger({
+    enabled: true,
+    sink: (record) => records.push(record)
+  });
+
+  const app = createDemoServer({ allowDemo: true, logger });
+  const running = await listen(app);
+
+  try {
+    const challengeRes = await getJson(`${running.baseUrl}/api/goanon/challenge`);
+    const challenge = challengeRes.body;
+
+    const payload = {
+      challenge: challenge.challenge,
+      proof: demoProof({
+        challenge: challenge.challenge,
+        audience: challenge.audience,
+        threshold: challenge.threshold
+      })
+    };
+
+    const first = await getJson(`${running.baseUrl}/api/goanon/verify`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    assert.equal(first.response.status, 200);
+
+    const replay = await getJson(`${running.baseUrl}/api/goanon/verify`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    assert.equal(replay.response.status, 409);
+
+    const serialized = JSON.stringify(records);
+
+    assert.ok(records.some((record) => record.event === "challenge_created"));
+    assert.ok(records.some((record) => record.event === "verification_succeeded"));
+    assert.ok(records.some((record) =>
+      record.event === "verification_rejected" &&
+      record.error === "challenge_already_used"
+    ));
+
+    assert.equal(serialized.includes(challenge.challenge), false);
+    assert.equal(serialized.includes('"proof"'), false);
+    assert.equal(serialized.includes("local-demo-not-cryptographic"), false);
+  } finally {
+    await running.close();
+  }
+});
+

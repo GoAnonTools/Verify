@@ -67,6 +67,69 @@ function parseBooleanEnv(value) {
   return value === "1" || value === "true" || value === "yes";
 }
 
+const LOG_REDACTED = "[redacted]";
+
+const SENSITIVE_LOG_KEYS = new Set([
+  "challenge",
+  "rawChallenge",
+  "proof",
+  "proofEnvelope",
+  "credential",
+  "passphrase",
+  "encryptedCredential",
+  "birthdate",
+  "exactBirthdate",
+  "idDocument",
+  "passportScan",
+  "face",
+  "biometricData",
+  "walletIdentifier"
+]);
+
+export function sanitizeLogFields(value) {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeLogFields);
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  const clean = {};
+
+  for (const [key, child] of Object.entries(value)) {
+    if (SENSITIVE_LOG_KEYS.has(key)) {
+      clean[key] = LOG_REDACTED;
+    } else {
+      clean[key] = sanitizeLogFields(child);
+    }
+  }
+
+  return clean;
+}
+
+export function createSafeStructuredLogger({
+  enabled = parseBooleanEnv(process.env.GOANON_VERIFY_STRUCTURED_LOGS),
+  sink = (record) => console.log(JSON.stringify(record))
+} = {}) {
+  return {
+    info(event, fields = {}) {
+      if (!enabled) return;
+
+      sink({
+        timestamp: new Date().toISOString(),
+        service: "goanon-verify-backend-demo",
+        event,
+        ...sanitizeLogFields(fields)
+      });
+    }
+  };
+}
+
+function challengeRef(record) {
+  return record?.challengeHash ? record.challengeHash.slice(0, 16) : undefined;
+}
+
 function getRequestAudience(req) {
   const configured = process.env.GOANON_VERIFY_AUDIENCE;
   if (configured) return configured.replace(/\/$/, "");
@@ -206,15 +269,15 @@ export class ChallengeStore {
     }
 
     if (record.usedAt) {
-      return { ok: false, status: 409, code: "challenge_already_used" };
+      return { ok: false, status: 409, code: "challenge_already_used", record };
     }
 
     if (record.lockedAt) {
-      return { ok: false, status: 409, code: "challenge_verification_in_progress" };
+      return { ok: false, status: 409, code: "challenge_verification_in_progress", record };
     }
 
     if (record.expiresAt <= nowMs()) {
-      return { ok: false, status: 410, code: "challenge_expired" };
+      return { ok: false, status: 410, code: "challenge_expired", record };
     }
 
     record.lockedAt = nowMs();
@@ -251,7 +314,8 @@ export class ChallengeStore {
 export function createDemoServer({
   allowDemo = parseBooleanEnv(process.env.GOANON_VERIFY_ALLOW_DEMO),
   challengeTtlMs = DEFAULT_CHALLENGE_TTL_MS,
-  usedChallengeRetentionMs = DEFAULT_USED_CHALLENGE_RETENTION_MS
+  usedChallengeRetentionMs = DEFAULT_USED_CHALLENGE_RETENTION_MS,
+  logger = createSafeStructuredLogger()
 } = {}) {
   const demoPolicyViolation = getDemoPolicyViolation({
     allowDemo,
@@ -296,6 +360,13 @@ export function createDemoServer({
           threshold
         });
 
+        logger.info("challenge_created", {
+          challenge_ref: created.challengeHash.slice(0, 16),
+          audience: created.audience,
+          threshold: created.threshold,
+          expires_at: created.expiresAtSeconds
+        });
+
         json(res, 200, {
           challenge: created.challenge,
           audience: created.audience,
@@ -323,6 +394,12 @@ export function createDemoServer({
         const proof = body.proof;
 
         if (!challenge || !proof || typeof proof !== "object") {
+          logger.info("verification_rejected", {
+            error: "missing_challenge_or_proof",
+            challenge_present: Boolean(challenge),
+            proof_present: Boolean(proof)
+          });
+
           json(res, 400, {
             verified: false,
             error: "missing_challenge_or_proof"
@@ -333,6 +410,12 @@ export function createDemoServer({
         const reservation = challengeStore.beginVerification(challenge);
 
         if (!reservation.ok) {
+          logger.info("verification_rejected", {
+            error: reservation.code,
+            challenge_ref: challengeRef(reservation.record),
+            status: reservation.status
+          });
+
           json(res, reservation.status, {
             verified: false,
             error: reservation.code
@@ -352,6 +435,14 @@ export function createDemoServer({
 
           challengeStore.completeVerification(record);
 
+          logger.info("verification_succeeded", {
+            challenge_ref: challengeRef(record),
+            audience: record.audience,
+            threshold: record.threshold,
+            demo: Boolean(result?.demo),
+            cryptographic: Boolean(result?.cryptographic)
+          });
+
           json(res, 200, {
             verified: true,
             result: result || { ok: true },
@@ -361,9 +452,18 @@ export function createDemoServer({
         } catch (error) {
           challengeStore.failVerification(record);
 
+          const errorCode = verifierErrorCode(error);
+
+          logger.info("verification_failed", {
+            challenge_ref: challengeRef(record),
+            audience: record.audience,
+            threshold: record.threshold,
+            error: errorCode
+          });
+
           json(res, 400, {
             verified: false,
-            error: verifierErrorCode(error),
+            error: errorCode,
             detail: error.message
           });
           return;
