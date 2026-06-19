@@ -288,6 +288,18 @@
           <span id="factGrade">—</span>
         </div>
         <div class="fact">
+          <small>Protocol</small>
+          <span id="factProtocol">—</span>
+        </div>
+        <div class="fact">
+          <small>Mode</small>
+          <span id="factMode">—</span>
+        </div>
+        <div class="fact">
+          <small>Expires</small>
+          <span id="factExpires">—</span>
+        </div>
+        <div class="fact">
           <small>Issuer contacted</small>
           <span id="factIssuerContact">—</span>
         </div>
@@ -297,23 +309,26 @@
         <div class="card">
           <h2>Shared with this website</h2>
           <ul class="list">
-            <li><span class="ok">✓</span><span><b>Age eligibility:</b> over 18 = yes</span></li>
-            <li><span class="ok">✓</span><span><b>Proof:</b> domain-bound and short-lived</span></li>
-            <li><span class="ok">✓</span><span><b>Issuer label:</b> enough for verification policy</span></li>
+            <li><span class="ok">✓</span><span><b id="sharedClaim">Age eligibility:</b> over 18 = yes</span></li>
+            <li><span class="ok">✓</span><span><b>Protocol:</b> <span id="sharedProtocol">goanon.verify.v1</span></span></li>
+            <li><span class="ok">✓</span><span><b>Proof:</b> website-bound and short-lived</span></li>
+            <li><span class="ok">✓</span><span><b>Disclosed:</b> <span id="sharedDisclosed">age_over_threshold</span></span></li>
           </ul>
         </div>
 
         <div class="card">
           <h2>Not shared</h2>
           <ul class="list">
-            <li><span class="no">×</span><span>Name</span></li>
-            <li><span class="no">×</span><span>Exact birthdate</span></li>
-            <li><span class="no">×</span><span>ID document or face scan</span></li>
-            <li><span class="no">×</span><span>Wallet identifier or account identity</span></li>
-            <li><span class="no">×</span><span>Browsing activity to issuer/government</span></li>
+            <li><span class="no">×</span><span id="notSharedOne">Name</span></li>
+            <li><span class="no">×</span><span id="notSharedTwo">Exact birthdate</span></li>
+            <li><span class="no">×</span><span id="notSharedThree">ID document or passport scan</span></li>
+            <li><span class="no">×</span><span id="notSharedFour">Face or biometric data</span></li>
+            <li><span class="no">×</span><span id="notSharedFive">Wallet identifier or account identity</span></li>
           </ul>
         </div>
       </div>
+
+      <div class="status" id="proofWarning" style="margin-top:20px; display:none;"></div>
 
       <details>
         <summary>Developer details</summary>

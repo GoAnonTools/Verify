@@ -7,6 +7,12 @@ const jsonEl = document.getElementById("json");
 const factIssuer = document.getElementById("factIssuer");
 const factGrade = document.getElementById("factGrade");
 const factIssuerContact = document.getElementById("factIssuerContact");
+const factProtocol = document.getElementById("factProtocol");
+const factMode = document.getElementById("factMode");
+const factExpires = document.getElementById("factExpires");
+const sharedProtocol = document.getElementById("sharedProtocol");
+const sharedDisclosed = document.getElementById("sharedDisclosed");
+const proofWarning = document.getElementById("proofWarning");
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -46,12 +52,30 @@ function summarizeProof(proof) {
   const privacy = proof?.privacy || {};
   const issuerContacted = privacy.issuer_contacted_during_proof;
 
+  const claim = proof?.claim || {};
+  const expiresAt = proof?.expires_at || proof?.presentation?.expires_at;
+  const disclosed = Array.isArray(proof?.disclosed) ? proof.disclosed : ["age_over_threshold"];
+
   factIssuer.textContent = proof?.issuer || "unknown";
   factGrade.textContent = privacy.grade || "unknown";
+  factProtocol.textContent = proof?.protocol || proof?.protocol_version || "unknown";
+  factMode.textContent = proof?.mode || "unknown";
+  factExpires.textContent = expiresAt ? new Date(expiresAt).toLocaleTimeString() : "unknown";
   factIssuerContact.textContent =
     issuerContacted === false ? "No" :
     issuerContacted === true ? "Yes" :
     "Unknown";
+
+  sharedProtocol.textContent = proof?.protocol || proof?.protocol_version || "unknown";
+  sharedDisclosed.textContent = disclosed.join(", ");
+
+  if (proof?.warning || privacy.warning) {
+    proofWarning.textContent = proof.warning || privacy.warning;
+    proofWarning.style.display = "block";
+  } else {
+    proofWarning.textContent = "";
+    proofWarning.style.display = "none";
+  }
 
   jsonEl.textContent = JSON.stringify(proof, null, 2);
   resultEl.classList.add("visible");
