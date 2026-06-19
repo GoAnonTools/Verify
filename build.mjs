@@ -135,7 +135,7 @@ function copyStatic(outDir, browser) {
   }
 
   // Icons — generate placeholder PNGs if real ones don't exist
-  for (const size of [16, 32, 48, 128]) {
+  for (const size of [16, 32, 48, 128, 512]) {
     const src = `icons/icon${size}.png`;
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, `${outDir}/icons/icon${size}.png`);
