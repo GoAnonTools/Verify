@@ -8,6 +8,7 @@
  */
 
 import type { IssuedCredential } from "./engine.js";
+import { FEATURE_FLAGS, isFeatureEnabled } from "./feature-flags.js";
 
 export type WalletConnectorStatus = "disabled-alpha" | "experimental" | "available";
 export type WalletConnectorKind = "eudi-compatible-wallet";
@@ -104,11 +105,19 @@ export const DISABLED_EUDI_WALLET_CONNECTOR: WalletConnector = {
   id: "eudi",
   name: "EUDI-compatible wallet",
   kind: "eudi-compatible-wallet",
-  status: "disabled-alpha",
-  enabled: false,
+  status: FEATURE_FLAGS.eudiWalletConnector.status,
+  enabled: FEATURE_FLAGS.eudiWalletConnector.enabled,
   researchLock: EUDI_RESEARCH_LOCK_PATH,
   privacyRequirements: EUDI_PRIVACY_REQUIREMENTS,
-  connect: async () => throwDisabledWalletConnector(),
+  connect: async () => {
+    if (!isFeatureEnabled("eudiWalletConnector")) {
+      throwDisabledWalletConnector();
+    }
+
+    throw new Error(
+      "EUDI wallet connector flag is enabled, but no production connector implementation is installed."
+    );
+  },
 };
 
 export function getBlockingEudiPrivacyRequirements(): readonly WalletPrivacyRequirement[] {
