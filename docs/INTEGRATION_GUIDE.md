@@ -241,3 +241,64 @@ The atomic consume step is the replay-protection boundary.
 
 Used challenge hashes should be retained for a short replay-retention window. This allows repeated replay attempts to be rejected explicitly as `challenge_already_used` instead of becoming indistinguishable from unknown challenges.
 
+## Production verifier hardening
+
+For production-style integrations, prefer the production verifier wrapper:
+
+~~~js
+import {
+  verifyProductionGoAnonAgeProof
+} from "./sdk/production-verifier.mjs";
+
+const result = await verifyProductionGoAnonAgeProof(proof, verificationKey, {
+  expectedAudience: "https://example.com",
+  expectedChallenge: challengeFromServer,
+  minAge: 18,
+
+  // Production trust boundary.
+  trustAnchors: [
+    "did:example:trusted-issuer"
+  ],
+
+  // Real wallet / EUDI / ZK verifier must be injected here.
+  verifyAgeProof: async (envelope, verificationKey, context) => {
+    // Validate issuer signature, proof system, challenge binding,
+    // audience binding, expiry, and trust anchor rules.
+    return { ok: true };
+  }
+});
+
+if (!result.ok) {
+  console.error(result.code, result.error);
+}
+~~~
+
+The production verifier makes several safety requirements explicit:
+
+- demo/local-test proofs are rejected by default;
+- production proof types must be allowlisted;
+- non-demo proofs require a trust-anchor or issuer allowlist;
+- non-demo proofs require an injected cryptographic verifier;
+- verifier failures return stable error codes.
+
+Do not enable demo proofs in production.
+
+This unsafe configuration is blocked:
+
+~~~sh
+NODE_ENV=production GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
+~~~
+
+Local demo mode is only for extension development:
+
+~~~sh
+GOANON_VERIFY_ALLOW_DEMO=true npm run demo:backend
+~~~
+
+Production deployments must keep demo proofs disabled:
+
+~~~sh
+npm run demo:backend
+~~~
+
+Important: `verifyProductionGoAnonAgeProof` is a production-facing interface placeholder. It does not by itself make local demo proofs into legal or production age verification. Real production verification still requires a reviewed wallet, EUDI, selective-disclosure, or ZK verifier implementation.
