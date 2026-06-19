@@ -314,3 +314,13 @@ docs/TRUST_ANCHORS.md
 ~~~
 
 Trust anchors are an alpha placeholder for the future EUDI, wallet, selective-disclosure, or ZK trust model. Do not treat a simple string allowlist as sufficient legal or production-grade verification.
+
+## Executable documentation examples
+
+The production verifier examples in this guide are mirrored by executable tests in:
+
+~~~text
+test/docs-examples.test.mjs
+~~~
+
+These tests help keep the documented integration pattern aligned with the SDK API.
