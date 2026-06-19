@@ -15,7 +15,7 @@ import {
   loadCredential,
   buildTestCredential,
   PROTOCOL_VERSION,
-} from "../src/engine.js";
+} from "./.build/engine.mjs";
 
 let passed = 0;
 let failed = 0;
@@ -142,7 +142,7 @@ await test("tampered ciphertext throws on decrypt", async () => {
 console.log("\n📄 Protocol");
 
 await test("PROTOCOL_VERSION is set", () => {
-  assert.equal(PROTOCOL_VERSION, "goanon-age-v1");
+  assert.equal(PROTOCOL_VERSION, "goanon.verify.v1");
 });
 
 // ─── Integration test (skipped without circuit files) ────────────────────────
@@ -156,7 +156,7 @@ if (!circuitReady) {
   console.log("     (requires circom + snarkjs CLI installed globally)");
 } else {
   await test("generates a valid proof for someone born in 1990", async () => {
-    const { generateAgeProof, verifyAgeProof } = await import("../src/engine.js");
+    const { generateAgeProof, verifyAgeProof } = await import("./.build/engine.mjs");
     const cred = await buildTestCredential("1990-06-15");
     const proof = await generateAgeProof(
       cred,
@@ -164,7 +164,7 @@ if (!circuitReady) {
       "./circuits/age_verify_final.zkey"
     );
     assert.equal(proof.publicSignals.is_over_age, "1");
-    assert.equal(proof.protocol_version, "goanon-age-v1");
+    assert.equal(proof.protocol_version, "goanon.verify.v1");
 
     const vkey = JSON.parse(await import("fs").readFileSync("./circuits/verification_key.json", "utf8"));
     const result = await verifyAgeProof(proof, vkey);
@@ -172,7 +172,7 @@ if (!circuitReady) {
   });
 
   await test("rejects proof for someone born in 2015 (under 18)", async () => {
-    const { generateAgeProof } = await import("../src/engine.js");
+    const { generateAgeProof } = await import("./.build/engine.mjs");
     const cred = await buildTestCredential("2015-01-01");
     try {
       await generateAgeProof(

@@ -5,3 +5,6 @@ node_modules/
 *.bak
 src/*.bak
 .DS_Store
+
+# Test build output
+test/.build/

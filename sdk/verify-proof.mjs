@@ -19,8 +19,6 @@
  *     allowDemo: false
  *   });
  */
-import { verifyAgeProof } from '../src/engine.js';
-
 export const GOANON_VERIFY_PROTOCOL = 'goanon.verify.v1';
 
 export async function verifyGoAnonAgeProof(proof, verificationKey, options = {}) {
@@ -37,6 +35,12 @@ export async function verifyGoAnonAgeProof(proof, verificationKey, options = {})
       warning: envelope.warning ?? 'Local demo proof accepted only because allowDemo=true.',
       summary: explainProof(envelope),
     });
+  }
+
+  const verifyAgeProof = options.verifyAgeProof;
+
+  if (typeof verifyAgeProof !== 'function') {
+    return fail('Cryptographic verifier is not configured. Pass options.verifyAgeProof for production proofs.');
   }
 
   const cryptoResult = await verifyAgeProof(envelope, verificationKey, {
